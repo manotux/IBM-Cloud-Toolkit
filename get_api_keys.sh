@@ -1,0 +1,84 @@
+#!/usr/bin/env bash
+
+# get_api_keys.sh
+#
+# This script retrieves all API keys in the IBM Cloud account and outputs their
+# id, name, created_at, and created_by fields in a readable format that also
+# helps identifying outdated keys.
+# Requires IBM Cloud CLI and jq for JSON parsing.
+
+# Load common functions and variables
+srcdir="$(dirname "${BASH_SOURCE[0]}")"
+. "$srcdir/utils.sh"
+
+# Default values
+OUTPUT_DIR="output"
+OUTPUT_FILE="api_keys.txt"
+
+# Usage
+usage() {
+    scriptname=$(basename "$0")
+    echo "Usage: ./$scriptname [-h] [-o OUTPUT_DIR] [-f OUTPUT_FILE]"
+    echo
+    echo "Options:"
+    echo "  -h              Show this help message"
+    echo "  -o OUTPUT_DIR   Specify the output folder for results (default: 'output')"
+    echo "  -f OUTPUT_FILE  Specify the output file name (default: 'api_keys.txt')"
+    echo
+    echo "This script retrieves all API keys in the IBM Cloud account."
+}
+
+# Parse arguments
+while getopts ":ho:f:" opt; do
+    case $opt in
+        h)
+            usage
+            exit 0
+            ;;
+        o)
+            OUTPUT_DIR="$OPTARG"
+            ;;
+        f)
+            OUTPUT_FILE="$OPTARG"
+            ;;
+        \?)
+            echo "Invalid option: -$OPTARG" >&2
+            usage
+            exit 1
+            ;;
+        :)
+            echo "Option -$OPTARG requires an argument." >&2
+            usage
+            exit 1
+            ;;
+    esac
+done
+
+# Check if IBM Cloud CLI and jq are installed
+require_ibmcloud_jq
+
+# Check if IBM Cloud CLI is logged in
+require_ibmcloud_login
+
+# Ensure output directory exists
+if [ ! -d "$OUTPUT_DIR" ]; then
+    mkdir -p "$OUTPUT_DIR" || failure "Error while creating the output directory: ${BOLD}$OUTPUT_DIR${RESET}"
+fi
+
+# Ensure the output file exists
+OUTPUT_PATH="${OUTPUT_DIR}/${OUTPUT_FILE}"
+: > "$OUTPUT_PATH" || failure "Error while creating the output file: ${BOLD}$OUTPUT_PATH${RESET}"
+
+echo " "
+echo "====================================================="
+echo "Retrieving all API keys in IBM Cloud account..."
+
+API_KEYS=$(ibmcloud iam api-keys -a -o JSON | jq -r '.[] | [.id, .name, .created_at, .created_by]')
+
+if [[ -z "$API_KEYS" ]]; then
+    echo "No API keys found."
+else
+    echo "${API_KEYS}" > "$OUTPUT_PATH"
+    echo
+    echo -e "Output saved to: ${BOLD}${OUTPUT_PATH}${RESET}"
+fi
