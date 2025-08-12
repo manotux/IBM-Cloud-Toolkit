@@ -26,19 +26,19 @@ Or follow the instructions at [IBM Cloud CLI Installation Guide](https://cloud.i
 
 ## Scripts
 
-**- [get_api_keys.sh.sh](get_api_keys.sh)**
+- **[get_api_keys.sh](get_api_keys.sh)**
 Enumerates existing API Keys.
 
-**- [get_regions.sh](get_regions.sh)**
+- **[get_regions.sh](get_regions.sh)**
 Enumerates enabled regions on the IBM Cloud account.
 
-**- [install_ibmcloud_cli.sh](install_ibmcloud_cli.sh)**
+- **[install_ibmcloud_cli.sh](install_ibmcloud_cli.sh)**
 Automates the installation of the IBM Cloud CLI for macOS and Linux.
 
-**- [ibm_cloud_enum.sh](ibm_cloud_enum.sh)**
+- **[ibm_cloud_enum.sh](ibm_cloud_enum.sh)**
 TBD - Executes all enumeration scripts against the IBM Cloud Account.
 
-**- [public_buckets.py](public_buckets.py)**
+- **[public_buckets.py](public_buckets.py)**
 Verifies if public access is enabled on the IBM Cloud account and enumerates all Cloud Object Storage buckets that are publicly accessible from the Internet.
 
 ## TODO
