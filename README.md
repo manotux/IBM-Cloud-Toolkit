@@ -42,7 +42,8 @@ TBD - Executes all enumeration scripts against the IBM Cloud Account.
 Verifies if public access is enabled on the IBM Cloud account and enumerates all Cloud Object Storage buckets that are publicly accessible from the Internet.
 
 ## TODO
-- ibm_cloud_enum.sh script
+- ibm_cloud_enum.sh
+- get_custom_roles.sh
 - Support for handling multiple IBM Cloud accounts in batch mode across all enumeration scripts.
 - Implemente different output formats (json, table, csv)
 
