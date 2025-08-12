@@ -27,7 +27,7 @@ Or follow the instructions at [IBM Cloud CLI Installation Guide](https://cloud.i
 ## Scripts
 
 #### - [get_api_keys.sh](get_api_keys.sh)
-Enumerates existing API Keys.
+Enumerates existing API Keys and identifies those not rotated within a configurable period (default: 90 days).
 
 #### - [get_regions.sh](get_regions.sh)
 Enumerates enabled regions on the IBM Cloud account.
