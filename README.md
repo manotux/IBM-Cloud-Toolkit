@@ -1,5 +1,3 @@
-
-
 <h1 align="center"><img src="IBM_Cloud_logo.png" alt="IBM Cloud" width=300 height=214></h1>
 
 # IBM Cloud ToolKit
@@ -40,6 +38,9 @@ TBD - Executes all enumeration scripts against the IBM Cloud Account.
 
 #### - [public_buckets.py](public_buckets.py)
 Verifies if public access is enabled on the IBM Cloud account and enumerates all Cloud Object Storage buckets that are publicly accessible from the Internet.
+
+#### - [get_floating_IPs.sh](get_floating_IPs.sh)
+Enumerates all floating IPs in each enabled IBM Cloud region.
 
 ## TODO
 - ibm_cloud_enum.sh
