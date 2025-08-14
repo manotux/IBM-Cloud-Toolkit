@@ -20,7 +20,7 @@ usage() {
     echo "  -o OUTPUT_DIR   Specify the output folder for results (default: 'output')"
     echo "  -f OUTPUT_FILE  Specify the output file name (default: 'floating_ips.txt')"
     echo
-    echo "This script enumerates all floating IPs in each enabled IBM Cloud region and outputs them to a single file."
+    echo "This script enumerates all floating IPs in each enabled IBM Cloud region."
 }
 
 while getopts ":ho:f:" opt; do
@@ -65,7 +65,10 @@ echo "Enumerating floating IPs in all enabled IBM Cloud regions..."
 REGIONS=$(get_regions)
 
 for region in $REGIONS; do
-    ibmcloud target -r "$region" -q &>/dev/null || warning "Failed to target region $region"
+    if ! ibmcloud target -r "$region" -q &>/dev/null; then
+        warning "Failed to target region $region"
+        continue
+    fi
     ibmcloud is floating-ips -q | awk 'NR>1 {print $2}' >> "$OUTPUT_PATH" || warning "Failed to retrieve floating IPs for region $region"
 done
 
