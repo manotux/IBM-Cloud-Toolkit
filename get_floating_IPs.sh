@@ -3,7 +3,7 @@
 # get_floating_IPs.sh
 #
 # This script enumerates all floating IPs in each enabled IBM Cloud region and outputs them to a single file.
-# Requires IBM Cloud CLI.
+# Requires IBM Cloud CLI and vpc-infrastructure ("is") plugin.
 
 srcdir="$(dirname "${BASH_SOURCE[0]}")"
 . "$srcdir/utils.sh"
@@ -49,6 +49,7 @@ while getopts ":ho:f:" opt; do
 done
 
 require_ibmcloud_login
+require_ibmcloud_is
 
 if [ ! -d "$OUTPUT_DIR" ]; then
     mkdir -p "$OUTPUT_DIR" || failure "Error while creating the output directory: ${BOLD}$OUTPUT_DIR${RESET}"
@@ -58,14 +59,16 @@ OUTPUT_PATH="${OUTPUT_DIR}/${OUTPUT_FILE}"
 : > "$OUTPUT_PATH" || failure "Error while creating the output file: ${BOLD}$OUTPUT_PATH${RESET}"
 
 echo " "
-echo "====================================================="
+echo "============================================================"
 echo "Enumerating floating IPs in all enabled IBM Cloud regions..."
 
 REGIONS=$(get_regions)
 
 for region in $REGIONS; do
-    ibmcloud target -r "$region" -q || failure "Failed to target region $region"
-    ibmcloud is floating-ips -q | awk 'NR>1 {print $2}' >> "$OUTPUT_PATH"
+    ibmcloud target -r "$region" -q &>/dev/null || warning "Failed to target region $region"
+#    set +e
+    ibmcloud is floating-ips -q | awk 'NR>1 {print $2}' >> "$OUTPUT_PATH" || warning "Failed to retrieve floating IPs for region $region"
+#    set -euo pipefail
 done
 
 echo -e "All floating IPs saved to: ${BOLD}${OUTPUT_PATH}${RESET}"

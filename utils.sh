@@ -40,10 +40,21 @@ require_ibmcloud_jq() {
     check_command "jq" || failure "Unable to find the ${BOLD}jq${RESET} utility, please install it and run this script again."
 }
 
+# Check if IBM Cloud VPC plugin ("is") is installed
+require_ibmcloud_is() {
+    if ! ibmcloud plugin list | grep -qw "vpc-infrastructure"; then
+        failure "IBM Cloud VPC plugin ('is') is not installed. Please run: ibmcloud plugin install vpc-infrastructure"
+    fi
+}
+
 # Failure function
 failure() {
     echo -e "${BOLD}${BRIGHT_RED}FAILED: ${RESET}$*"
     exit 1
+}
+
+warning() {
+    echo -e "${BOLD}WARNING: ${RESET}$*"
 }
 
 get_regions() {
