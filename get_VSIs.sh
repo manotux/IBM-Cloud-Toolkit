@@ -1,13 +1,3 @@
-### PENDING ###
-
-# ============================================================
-# Enumerating VSIs in all enabled IBM Cloud regions...
-# jq: parse error: Invalid numeric literal at line 1, column 2
-
-############
-
-
-
 #!/usr/bin/env bash
 
 # get_VSIs.sh
