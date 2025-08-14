@@ -35,7 +35,7 @@ check_command() {
 }
 
 # Check if IBM Cloud CLI is installed
-require_ibmcloud_() {
+require_ibmcloud() {
     check_command "ibmcloud" || failure "Unable to find the ${BOLD}IBM Cloud CLI${RESET}, please install it and run this script again."
 }
 
