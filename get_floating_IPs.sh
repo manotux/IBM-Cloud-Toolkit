@@ -70,7 +70,7 @@ for region in $REGIONS; do
         warning "Failed to target region $region"
         continue
     fi
-    ibmcloud is floating-ips -q | awk 'NR>1 {print $2}' >> "$OUTPUT_PATH" || warning "Failed to retrieve floating IPs for region $region"
+    ibmcloud is floating-ips -q 2>/dev/null | awk 'NR>1 {print $2}' >> "$OUTPUT_PATH" || warning "Failed to retrieve floating IPs for region $region"
 done
 
 echo -e "All floating IPs saved to: ${BOLD}${OUTPUT_PATH}${RESET}"
