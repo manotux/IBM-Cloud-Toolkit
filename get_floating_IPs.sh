@@ -48,8 +48,9 @@ while getopts ":ho:f:" opt; do
     esac
 done
 
-require_ibmcloud_login
+require_ibmcloud
 require_ibmcloud_is
+require_ibmcloud_login
 
 if [ ! -d "$OUTPUT_DIR" ]; then
     mkdir -p "$OUTPUT_DIR" || failure "Error while creating the output directory: ${BOLD}$OUTPUT_DIR${RESET}"
