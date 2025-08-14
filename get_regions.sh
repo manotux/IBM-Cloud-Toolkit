@@ -71,38 +71,14 @@ echo " "
 echo "====================================================="
 echo "Retrieving enabled regions on IBM Cloud account..."
 
-R=$(ibmcloud regions --output json | jq -r '.[].Name')
-
-echo " "
-echo "Output saved to: ${BOLD}${OUTPUT_PATH}${RESET}"
-echo "====================================================="
-
-
-echo Enabled IBM Cloud regions:
-echo "${R}";echo
-
-echo To export REGIONS envvar:
-echo export REGIONS=\(${R[@]}\)
-
-
-# ...existing code...
-
-echo " "
-echo "====================================================="
-echo "Retrieving enabled regions on IBM Cloud account..."
-
 REGIONS=$(ibmcloud regions --output json | jq -r '.[].Name')
 
 if [[ -z "$REGIONS" ]]; then
     echo "No regions found."
 else
-    echo
-    printf "%-30s\n" "REGION"
-    echo "---------------"
     while IFS= read -r region; do
-        printf "%-30s\n" "$region" | tee -a "$OUTPUT_PATH"
+        echo "$region" >> "$OUTPUT_PATH"
     done <<< "$REGIONS"
     echo
     echo -e "Output saved to: ${BOLD}${OUTPUT_PATH}${RESET}"
 fi
-echo "====================================================="
