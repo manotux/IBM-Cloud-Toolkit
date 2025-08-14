@@ -66,9 +66,7 @@ REGIONS=$(get_regions)
 
 for region in $REGIONS; do
     ibmcloud target -r "$region" -q &>/dev/null || warning "Failed to target region $region"
-#    set +e
     ibmcloud is floating-ips -q | awk 'NR>1 {print $2}' >> "$OUTPUT_PATH" || warning "Failed to retrieve floating IPs for region $region"
-#    set -euo pipefail
 done
 
 echo -e "All floating IPs saved to: ${BOLD}${OUTPUT_PATH}${RESET}"
