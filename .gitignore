@@ -8,4 +8,3 @@ get_policies.sh
 get_resources.sh
 get_users.sh
 ibm_cloud_enum.sh
-get_VSIs.sh
