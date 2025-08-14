@@ -34,6 +34,11 @@ check_command() {
 	type -P $1 &>/dev/null
 }
 
+# Check if IBM Cloud CLI is installed
+require_ibmcloud_() {
+    check_command "ibmcloud" || failure "Unable to find the ${BOLD}IBM Cloud CLI${RESET}, please install it and run this script again."
+}
+
 # Check if IBM Cloud CLI and jq are installed
 require_ibmcloud_jq() {
     check_command "ibmcloud" || failure "Unable to find the ${BOLD}IBM Cloud CLI${RESET}, please install it and run this script again."

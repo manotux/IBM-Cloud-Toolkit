@@ -42,6 +42,9 @@ Verifies if public access is enabled on the IBM Cloud account and enumerates all
 #### - [get_floating_IPs.sh](get_floating_IPs.sh)
 Enumerates all floating IPs in each enabled IBM Cloud region.
 
+#### - [get_VSIs.sh](get_VSIs.sh)
+Enumerates all VSIs (IBM Cloud VMs) in each enabled IBM Cloud region. Also generates a separate file for VSIs with metadata enabled.
+
 ## TODO
 - ibm_cloud_enum.sh
 - get_custom_roles.sh
