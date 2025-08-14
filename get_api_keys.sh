@@ -116,6 +116,7 @@ else
     done < <(echo "$API_KEYS" | jq -c '.[]')
 
     if (( NON_ROTATED_FOUND )); then
+        jq -s '.' "$NON_ROTATED_OUTPUT_PATH" > "${NON_ROTATED_OUTPUT_PATH}.tmp" && mv "${NON_ROTATED_OUTPUT_PATH}.tmp" "$NON_ROTATED_OUTPUT_PATH"
         echo -e "API keys not rotated in the last ${BOLD}${ROTATION_DAYS} days${RESET} saved to: ${BOLD}${NON_ROTATED_OUTPUT_PATH}${RESET}"
     else
         echo "All API keys have been rotated within the last ${BOLD}${ROTATION_DAYS} days${RESET}."
