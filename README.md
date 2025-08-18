@@ -7,7 +7,9 @@ A collection of scripts and one-liners for enumeration of IBM Cloud resources.
 
 This toolkit is intended to automate the enumeration of resources and security settings during penetration testing engagements on IBM Cloud accounts. Manual enumeration is time consuming, repetitive, tedious and prone to human error, especially when dealing with complex cloud environments. This collection of scripts aims to improve efficiency, and ensure more accurate coverage of IBM Cloud assets and configurations. 
 
-While there are several well-established open-source tools for major cloud providers like AWS and Azure, there are very few similar initiatives focused on IBM Cloud. This project was created to help fill that gap and provide the IBM Cloud community with tools for security assessments and resource inventory. If you find these scripts useful, have suggestions for improvements, or want to contribute new features, feel free to open an issue or submit a PR. Community feedback and contributions are welcome!
+While there are several well-established open-source tools for major cloud providers like AWS and Azure, there are very few similar initiatives focused on IBM Cloud. This project was created to help fill that gap and provide the IBM Cloud community with tools for security assessments and resource inventory. 
+
+Contributions and community feedback are welcome! If you find these scripts useful, have suggestions for improvements, feature requests, or want to contribute in any way, feel free to open an issue or submit a PR.
 
 ## Requirements
 - IBM Cloud CLI
@@ -45,6 +47,22 @@ Enumerates all floating IPs in each enabled IBM Cloud region.
 #### - [get_VSIs.sh](get_VSIs.sh)
 Enumerates all VSIs (IBM Cloud VMs) in each enabled IBM Cloud region. Also generates a separate file for VSIs with metadata enabled.
 
+## Usage
+Each script has its own Usage instructions documented in the code and that can be verified through the -h option. Example for `get_api_keys.sh`:
+
+```
+$ ./get_api_keys.sh -h
+Usage: ./get_api_keys.sh [-h] [-o OUTPUT_DIR] [-f OUTPUT_FILE]
+
+Options:
+  -h              Show this help message
+  -o OUTPUT_DIR   Specify the output folder for results (default: 'output')
+  -f OUTPUT_FILE  Specify the output file name (default: 'api_keys.txt')
+  -d ROTATION_DAYS  Set the rotation threshold in days (default: 90)
+
+This script retrieves all API keys in the IBM Cloud account.
+```
+
 ## TODO
 - ibm_cloud_enum.sh
 - get_custom_roles.sh
@@ -53,9 +71,9 @@ Enumerates all VSIs (IBM Cloud VMs) in each enabled IBM Cloud region. Also gener
 - get_users.sh
 - get_mfa.sh
 - Support for handling multiple IBM Cloud accounts in batch mode across all enumeration scripts.
-- Implemente different output formats (json, table, csv)
+- Implement different output formats (json, table, csv)
 
-## Creator
+## Author
 Heber Blain Gonçalves
 
 - [linkedin.com/hebergoncalves/](https://linkedin.com/in/hebergoncalves/)
