@@ -47,6 +47,16 @@ require_ibmcloud_jq() {
     check_command "jq" || failure "Unable to find the ${BOLD}jq${RESET} utility, please install it and run this script again."
 }
 
+# Check if jq is installed
+require_jq() {
+    check_command "jq" || failure "Unable to find the ${BOLD}jq${RESET} utility, please install it and run this script again."
+}
+
+# Check if curl is installed
+require_curl() {
+    check_command "curl" || failure "Unable to find the ${BOLD}curl${RESET} utility, please install it and run this script again."
+}
+
 # Check if IBM Cloud VPC plugin ("is") is installed
 require_ibmcloud_is() {
     if ! ibmcloud plugin list | grep -qw "vpc-infrastructure"; then

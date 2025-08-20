@@ -1,7 +1,7 @@
 <h1 align="center"><img src="IBM_Cloud_logo.png" alt="IBM Cloud" width=300 height=214></h1>
 
 # IBM Cloud ToolKit
-A collection of scripts and one-liners for enumeration of IBM Cloud resources. 
+A collection of scripts for enumeration of IBM Cloud resources and identification of weak security settings.
 
 ## Why was this project created?
 
@@ -26,6 +26,9 @@ Or follow the instructions at [IBM Cloud CLI Installation Guide](https://cloud.i
 
 ## Scripts
 
+#### - [ibm_cloud_enum.sh](ibm_cloud_enum.sh)
+Executes all enumeration scripts against the IBM Cloud Account.
+
 #### - [get_api_keys.sh](get_api_keys.sh)
 Enumerates existing API Keys and identifies those not rotated within a configurable period (default: 90 days).
 
@@ -34,9 +37,6 @@ Enumerates enabled regions on the IBM Cloud account.
 
 #### - [install_ibmcloud_cli.sh](install_ibmcloud_cli.sh)
 Automates the installation of the IBM Cloud CLI for macOS and Linux.
-
-#### - [ibm_cloud_enum.sh](ibm_cloud_enum.sh)
-Executes all enumeration scripts against the IBM Cloud Account.
 
 #### - [public_buckets.py](public_buckets.py)
 Verifies if public access is enabled on the IBM Cloud account and enumerates all Cloud Object Storage buckets that are publicly accessible from the Internet.
@@ -47,7 +47,11 @@ Enumerates all floating IPs in each enabled IBM Cloud region.
 #### - [get_VSIs.sh](get_VSIs.sh)
 Enumerates all VSIs (IBM Cloud VMs) in each enabled IBM Cloud region. Also generates a separate file for VSIs with metadata enabled.
 
-#### - [get_databases.sh](get_databasess.sh)
+
+#### - [get_clusters.sh](get_clusters.sh)
+Enumerates all IBM Cloud Kubernetes/Openshift clusters using the IBM Cloud REST API. Also generates a separate file for clusters with public endpoint enabled.
+
+#### - [get_databases.sh](get_databases.sh)
 Enumerates all IBM Cloud Databases. Also generates a separate file for databases with public endpoint enabled.
 
 ## Usage

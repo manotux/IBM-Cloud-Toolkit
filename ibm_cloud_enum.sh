@@ -70,6 +70,8 @@ fi
 
 "$srcdir/get_VSIs.sh" -o "$OUTPUT_DIR"
 
+"$srcdir/get_clusters.sh" -o "$OUTPUT_DIR"
+
 "$srcdir/get_databases.sh" -o "$OUTPUT_DIR"
 
 echo " "
