@@ -72,7 +72,8 @@ fi
 
 "$srcdir/get_databases.sh" -o "$OUTPUT_DIR"
 
+echo " "
 echo "${SEPARATOR}"
 echo "IBM Cloud enumeration completed."
 echo -e "Results saved to: ${BOLD}${OUTPUT_DIR}${RESET}"
-echo
+echo " "
