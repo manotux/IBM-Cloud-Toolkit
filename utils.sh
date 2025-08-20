@@ -13,6 +13,8 @@ RESET="\033[0m"
 # Default output folder
 OUTPUT_DIR="output"
 
+SEPARATOR="============================================================"
+
 ibmcloud_account_id(){
     ibmcloud target -o JSON|jq -r '.account.guid'
 }
@@ -49,6 +51,13 @@ require_ibmcloud_jq() {
 require_ibmcloud_is() {
     if ! ibmcloud plugin list | grep -qw "vpc-infrastructure"; then
         failure "IBM Cloud VPC plugin ('is') is not installed. Please run: ibmcloud plugin install vpc-infrastructure"
+    fi
+}
+
+# Check if IBM Cloud cloud-databases plugin ("cdb") is installed
+require_ibmcloud_cdb() {
+    if ! ibmcloud plugin list | grep -qw "cloud-databases"; then
+        failure "IBM Cloud databases plugin ('cdb') is not installed. Please run: ibmcloud plugin install cloud-databases"
     fi
 }
 

@@ -47,6 +47,9 @@ Enumerates all floating IPs in each enabled IBM Cloud region.
 #### - [get_VSIs.sh](get_VSIs.sh)
 Enumerates all VSIs (IBM Cloud VMs) in each enabled IBM Cloud region. Also generates a separate file for VSIs with metadata enabled.
 
+#### - [get_databases.sh](get_databasess.sh)
+Enumerates all IBM Cloud Databases. Also generates a separate file for databases with public endpoint enabled.
+
 ## Usage
 Each script has its own Usage instructions documented in the code and that can be verified through the -h option. Example for `get_api_keys.sh`:
 
