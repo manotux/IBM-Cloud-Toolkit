@@ -68,8 +68,9 @@ OUTPUT_PATH="${OUTPUT_DIR}/${OUTPUT_FILE}"
 : > "$OUTPUT_PATH" || failure "Error while creating the output file: ${BOLD}$OUTPUT_PATH${RESET}"
 
 echo " "
-echo "====================================================="
+echo "${SEPARATOR}"
 echo "Retrieving enabled regions on IBM Cloud account..."
+echo " "
 
 REGIONS=$(ibmcloud regions --output json | jq -r '.[].Name')
 
@@ -79,6 +80,5 @@ else
     while IFS= read -r region; do
         echo "$region" >> "$OUTPUT_PATH"
     done <<< "$REGIONS"
-    echo
     echo -e "Output saved to: ${BOLD}${OUTPUT_PATH}${RESET}"
 fi

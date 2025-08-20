@@ -80,8 +80,9 @@ NON_ROTATED_OUTPUT_PATH="${OUTPUT_DIR}/non_rotated_${OUTPUT_FILE}"
 : > "$NON_ROTATED_OUTPUT_PATH" || failure "Error while creating the output file: ${BOLD}$NON_ROTATED_OUTPUT_PATH${RESET}"
 
 echo " "
-echo "====================================================="
+echo "${SEPARATOR}"
 echo "Retrieving all API keys in IBM Cloud account..."
+echo " "
 
 API_KEYS=$(ibmcloud iam api-keys -a -o JSON | jq '[.[] | {id, name, created_at, created_by}]')
 

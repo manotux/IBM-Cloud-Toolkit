@@ -60,8 +60,9 @@ OUTPUT_PATH="${OUTPUT_DIR}/${OUTPUT_FILE}"
 : > "$OUTPUT_PATH" || failure "Error while creating the output file: ${BOLD}$OUTPUT_PATH${RESET}"
 
 echo " "
-echo "============================================================"
+echo "${SEPARATOR}"
 echo "Enumerating floating IPs in all enabled IBM Cloud regions..."
+echo " "
 
 REGIONS=$(get_regions)
 

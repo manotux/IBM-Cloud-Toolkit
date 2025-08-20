@@ -64,8 +64,9 @@ METADATA_ENABLED_OUTPUT_PATH="${OUTPUT_DIR}/metadata_enabled_${OUTPUT_FILE}"
 : > "$METADATA_ENABLED_OUTPUT_PATH" || failure "Error while creating the output file: ${BOLD}$METADATA_ENABLED_OUTPUT_PATH${RESET}"
 
 echo " "
-echo "============================================================"
+echo "${SEPARATOR}"
 echo "Enumerating VSIs in all enabled IBM Cloud regions..."
+echo " "
 
 REGIONS=$(get_regions)
 ALL_VSI_JSON="[]"
