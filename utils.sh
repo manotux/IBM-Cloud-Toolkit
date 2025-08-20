@@ -13,7 +13,7 @@ RESET="\033[0m"
 # Default output folder
 OUTPUT_DIR="output"
 
-SEPARATOR="============================================================"
+SEPARATOR="=================================================================================="
 
 ibmcloud_account_id(){
     ibmcloud target -o JSON|jq -r '.account.guid'

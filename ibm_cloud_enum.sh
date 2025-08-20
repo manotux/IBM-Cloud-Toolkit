@@ -8,7 +8,6 @@
 # -o OUTPUT_DIR: Specify output directory for all scripts (default: output)
 
 BANNER="
-
 ########################################
         IBM Cloud Enumeration
    github.com/manotux/IBM-Cloud-Toolkit
@@ -54,7 +53,6 @@ while getopts ":ho:" opt; do
 done
 
 echo "$BANNER"
-echo
 
 require_ibmcloud_jq
 require_ibmcloud_cdb
