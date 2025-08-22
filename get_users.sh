@@ -146,6 +146,5 @@ else
     echo "No inactive users found."
 fi
 
-echo "${SEPARATOR}"
 
 
