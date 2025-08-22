@@ -29,6 +29,9 @@ Or follow the instructions at [IBM Cloud CLI Installation Guide](https://cloud.i
 #### - [ibm_cloud_enum.sh](ibm_cloud_enum.sh)
 Executes all enumeration scripts against the IBM Cloud Account.
 
+#### - [get_custom_roles.sh](get_custom_roles.sh)
+Enumerates custom IAM roles to be verified for excessive privileges granted to users.
+
 #### - [get_api_keys.sh](get_api_keys.sh)
 Enumerates existing API Keys and identifies those not rotated within a configurable period (default: 90 days).
 
@@ -46,7 +49,6 @@ Enumerates all floating IPs in each enabled IBM Cloud region.
 
 #### - [get_VSIs.sh](get_VSIs.sh)
 Enumerates all VSIs (IBM Cloud VMs) in each enabled IBM Cloud region. Also generates a separate file for VSIs with metadata enabled.
-
 
 #### - [get_clusters.sh](get_clusters.sh)
 Enumerates all IBM Cloud Kubernetes/Openshift clusters using the IBM Cloud REST API. Also generates a separate file for clusters with public endpoint enabled.
@@ -71,7 +73,6 @@ This script retrieves all API keys in the IBM Cloud account.
 ```
 
 ## TODO
-- get_custom_roles.sh
 - get_policies.sh
 - get_resources.sh
 - get_users.sh

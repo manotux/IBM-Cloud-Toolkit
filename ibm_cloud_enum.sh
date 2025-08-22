@@ -6,6 +6,9 @@
 # Usage: ./ibm_cloud_enum.sh [-h] [-o OUTPUT_DIR]
 # -h: Show help
 # -o OUTPUT_DIR: Specify output directory for all scripts (default: output)
+# Requires IBM Cloud CLI, jq for JSON parsing, curl for REST API requests,
+# exported IBM Cloud API Key envvar (IBMCLOUD_API_KEY), and the following
+# plugins of IBM Cloud CLI: databases ("cdb"), vpc-infrastructure ("is")
 
 BANNER="
 ########################################
@@ -63,6 +66,8 @@ if [ ! -d "$OUTPUT_DIR" ]; then
 fi
 
 "$srcdir/get_api_keys.sh" -o "$OUTPUT_DIR"
+
+"$srcdir/get_custom_roles.sh" -o "$OUTPUT_DIR"
 
 "$srcdir/get_regions.sh" -o "$OUTPUT_DIR"
 

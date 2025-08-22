@@ -19,6 +19,10 @@ ibmcloud_account_id(){
     ibmcloud target -o JSON|jq -r '.account.guid'
 }
 
+ibmcloud_access_token(){
+    curl -s -X POST -H "Content-Type: application/x-www-form-urlencoded" -d "grant_type=urn:ibm:params:oauth:grant-type:apikey&apikey=$IBMCLOUD_API_KEY" https://iam.cloud.ibm.com/identity/token | jq -r '.access_token'
+}
+
 ibmcloud_account_name(){
     ibmcloud target -o JSON|jq -r '.account.name'
 }
