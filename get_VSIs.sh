@@ -79,7 +79,7 @@ for region in $REGIONS; do
     fi
     VSI_JSON=$(ibmcloud is instances --output json 2>/dev/null) || { warning "Failed to retrieve VSIs for region $region"; continue; }
 
-    if [[ -z "$VSI_JSON" || "$VSI_JSON" == "[]" ]]; then
+    if [[ -z "${VSI_JSON:-}" || "$VSI_JSON" == "[]" || "$VSI_JSON" == "null" ]]; then
         continue
     fi
     # Extract required fields and build JSON objects

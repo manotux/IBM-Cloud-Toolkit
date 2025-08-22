@@ -74,7 +74,7 @@ echo " "
 
 REGIONS=$(ibmcloud regions --output json | jq -r '.[].Name')
 
-if [[ -z "$REGIONS" ]]; then
+if [[ -z "${REGIONS:-}" ]]; then
     echo "No regions found."
 else
     while IFS= read -r region; do
