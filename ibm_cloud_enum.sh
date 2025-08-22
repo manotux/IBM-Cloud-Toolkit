@@ -82,5 +82,5 @@ fi
 echo " "
 echo "${SEPARATOR}"
 echo "IBM Cloud enumeration completed."
-echo -e "Results saved to: ${BOLD}${OUTPUT_DIR}${RESET}"
+echo -e "Results saved to folder ${BOLD}${OUTPUT_DIR}${RESET}"
 echo " "
