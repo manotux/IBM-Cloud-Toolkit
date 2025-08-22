@@ -2,7 +2,6 @@ output
 get_regions.py
 public_buckets.py
 draft.sh
-get_custom_roles.sh
 get_mfa.sh
 get_policies.sh
 get_resources.sh

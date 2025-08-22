@@ -71,7 +71,7 @@ echo " "
 
 DBS_JSON=$(ibmcloud cdb deployments --json 2>/dev/null) || failure "Failed to retrieve databases."
 
-if [[ -z "$DBS_JSON" || "$DBS_JSON" == "[]" || "$DBS_JSON" == "null" ]]; then
+if [[ -z "${DBS_JSON:-}" || "$DBS_JSON" == "[]" || "$DBS_JSON" == "null" ]]; then
     echo "No databases found."
     exit 0
 fi
@@ -87,7 +87,7 @@ done < <(echo "$DBS_JSON" | jq -r '.[].name')
 
 for db_name in "${DB_NAMES[@]}"; do
     DB_INSTANCE_JSON=$(ibmcloud resource service-instance "$db_name" --output json 2>/dev/null)
-    if [[ -z "$DB_INSTANCE_JSON" || "$DB_INSTANCE_JSON" == "[]" ]]; then
+    if [[ -z "${DB_INSTANCE_JSON:-}" || "$DB_INSTANCE_JSON" == "[]" ]]; then
         continue
     fi
     ENDPOINT_TYPE=$(echo "$DB_INSTANCE_JSON" | jq -r '.[0].parameters["service-endpoints"] // "private"')

@@ -68,20 +68,20 @@ echo "Enumerating IBM Cloud Clusters..."
 echo " "
 
 # Check for API key
-if [ -z "${IBMCLOUD_API_KEY:-}" ]; then
+if [[ -z "${IBMCLOUD_API_KEY:-}" ]]; then
     failure "IBMCLOUD_API_KEY environment variable is not set. Please export your IBM Cloud API key as IBMCLOUD_API_KEY."
 fi
 
 # Get access token
-IBMCLOUD_ACCESS_TOKEN=$(curl -s -X POST -H "Content-Type: application/x-www-form-urlencoded" -d "grant_type=urn:ibm:params:oauth:grant-type:apikey&apikey=$IBMCLOUD_API_KEY" https://iam.cloud.ibm.com/identity/token | jq -r '.access_token')
+IBMCLOUD_ACCESS_TOKEN=$(ibmcloud_access_token)
 
-if [ -z "${IBMCLOUD_ACCESS_TOKEN:-}" ] || [ "${IBMCLOUD_ACCESS_TOKEN}" == "null" ]; then
+if [[ -z "${IBMCLOUD_ACCESS_TOKEN:-}" || "${IBMCLOUD_ACCESS_TOKEN}" == "null" ]]; then
     failure "Failed to obtain IBM Cloud access token. Check your IBMCLOUD_API_KEY."
 fi
 
 CLUSTERS_JSON=$(curl -s -X GET "https://containers.cloud.ibm.com/global/v2/vpc/getClusters" -H "Authorization: Bearer $IBMCLOUD_ACCESS_TOKEN")
 
-if [[ -z "$CLUSTERS_JSON" || "$CLUSTERS_JSON" == "[]" || "$CLUSTERS_JSON" == "null" ]]; then
+if [[ -z "${CLUSTERS_JSON:-}" || "$CLUSTERS_JSON" == "[]" || "$CLUSTERS_JSON" == "null" ]]; then
     echo "No clusters found."
     exit 0
 fi

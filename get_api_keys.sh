@@ -86,7 +86,7 @@ echo " "
 
 API_KEYS=$(ibmcloud iam api-keys -a -o JSON | jq '[.[] | {id, name, created_at, created_by}]')
 
-if [[ -z "$API_KEYS" ]]; then
+if [[ -z "${API_KEYS:-}" ]]; then
     echo "No API keys found."
 else
     echo "${API_KEYS}" > "$OUTPUT_PATH"
