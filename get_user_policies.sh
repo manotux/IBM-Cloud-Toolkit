@@ -1,19 +1,17 @@
 #!/usr/bin/env bash
 
-# get_custom_roles.sh
+# get_user_policies.sh
 #
-# This script enumerates all custom IAM roles defined in the IBM Cloud account.
-# Requires IBM Cloud CLI and jq for JSON parsing.
+# This script identifies users with access policies assigned directly (not via groups) in the IBM Cloud account.
+# For each such user, outputs their user_id and the policies in jq-formatted JSON.
+# Requires IBM Cloud CLI, jq, and curl.
 
-# Load common functions and variables
 srcdir="$(dirname "${BASH_SOURCE[0]}")"
 . "$srcdir/utils.sh"
 
-# Default values
 OUTPUT_DIR="output"
-OUTPUT_FILE="custom_roles.txt"
+OUTPUT_FILE="user_policies.txt"
 
-# Usage
 usage() {
     scriptname=$(basename "$0")
     echo "Usage: ./$scriptname [-h] [-o OUTPUT_DIR] [-f OUTPUT_FILE]"
@@ -21,12 +19,11 @@ usage() {
     echo "Options:"
     echo "  -h              Show this help message"
     echo "  -o OUTPUT_DIR   Specify the output folder for results (default: 'output')"
-    echo "  -f OUTPUT_FILE  Specify the output file name (default: 'custom_roles.txt')"
+    echo "  -f OUTPUT_FILE  Specify the output file name (default: 'user_policies.txt')"
     echo
-    echo "This script enumerates all custom IAM roles in the IBM Cloud account."
+    echo "This script identifies users with direct access policies in the IBM Cloud account."
 }
 
-# Parse arguments
 while getopts ":ho:f:" opt; do
     case $opt in
         h)
@@ -52,24 +49,20 @@ while getopts ":ho:f:" opt; do
     esac
 done
 
-# Check if IBM Cloud CLI and jq are installed
 require_ibmcloud_jq
-
-# Check if IBM Cloud CLI is logged in
+require_curl
 require_ibmcloud_login
 
-# Ensure output directory exists
 if [ ! -d "$OUTPUT_DIR" ]; then
     mkdir -p "$OUTPUT_DIR" || failure "Error while creating the output directory: ${BOLD}$OUTPUT_DIR${RESET}"
 fi
 
-# Ensure output file exists
 OUTPUT_PATH="${OUTPUT_DIR}/${OUTPUT_FILE}"
 : > "$OUTPUT_PATH" || failure "Error while creating the output file: ${BOLD}$OUTPUT_PATH${RESET}"
 
 echo " "
 echo "${SEPARATOR}"
-echo "Enumerating all custom IAM roles in IBM Cloud account..."
+echo "Identifying users with direct access policies in IBM Cloud account..."
 echo " "
 
 # Check for API key
@@ -91,14 +84,29 @@ if [[ -z "${IBMCLOUD_ACCOUNT_ID:-}" || "$IBMCLOUD_ACCOUNT_ID" == "null" ]]; then
     failure "Failed to obtain IBM Cloud account ID. Make sure you are logged in and targeting an account."
 fi
 
-# Enumerate custom roles
-CUSTOM_ROLES=$(curl -s -X GET \
-    -H "Authorization: Bearer $IBMCLOUD_ACCESS_TOKEN" \
-    "https://iam.cloud.ibm.com/v2/roles?account_id=$IBMCLOUD_ACCOUNT_ID" | jq '.custom_roles')
+# Enumerate users
+USERS_JSON=$(curl -s -X GET "https://iam.cloud.ibm.com/v2/accounts/$IBMCLOUD_ACCOUNT_ID/users" -H "Authorization: Bearer $IBMCLOUD_ACCESS_TOKEN")
+if [[ -z "${USERS_JSON:-}" || "$USERS_JSON" == "[]" || "$USERS_JSON" == "null" ]]; then
+    failure "Failed to retrieve users for account $IBMCLOUD_ACCOUNT_ID."
+fi
 
-if [[ -z "${CUSTOM_ROLES:-}" || "$CUSTOM_ROLES" == "[]" || "$CUSTOM_ROLES" == "null" ]]; then
-    echo "No custom roles found."
+USERS_FOUND=0
+
+while IFS= read -r user; do
+    IAM_ID=("$(echo "$user" | jq -r '.iam_id')")
+    USER_ID=("$(echo "$user" | jq -r '.user_id')")
+    POLICIES=$(curl -s -X GET "https://iam.cloud.ibm.com/v1/policies?account_id=$IBMCLOUD_ACCOUNT_ID&iam_id=$IAM_ID" -H "Authorization: Bearer $IBMCLOUD_ACCESS_TOKEN")
+    if [[ $(echo "$POLICIES" | jq '.policies | length') -gt 0 ]]; then
+        USERS_FOUND=1
+        echo "User ID: $USER_ID" >> "$OUTPUT_PATH"
+        echo "$POLICIES" | jq '.' >> "$OUTPUT_PATH"
+        echo >> "$OUTPUT_PATH"
+    fi
+done < <(echo "$USERS_JSON" | jq -c '.resources[]')
+
+if [[ $USERS_FOUND -eq 1 ]]; then
+    echo -e "Users with direct access policies saved to: ${BOLD}${OUTPUT_PATH}${RESET}"
 else
-    echo "$CUSTOM_ROLES" | jq > "$OUTPUT_PATH"
-    echo -e "Output with all custom roles saved to: ${BOLD}${OUTPUT_PATH}${RESET}. Investigate for excessive privileges."
+    echo "No users with direct access policies found."
+    rm -f "$OUTPUT_PATH"
 fi

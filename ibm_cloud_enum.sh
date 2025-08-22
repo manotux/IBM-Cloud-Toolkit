@@ -69,6 +69,8 @@ fi
 
 "$srcdir/get_custom_roles.sh" -o "$OUTPUT_DIR"
 
+"$srcdir/get_user_policies.sh" -o "$OUTPUT_DIR"
+
 "$srcdir/get_regions.sh" -o "$OUTPUT_DIR"
 
 "$srcdir/get_floating_IPs.sh" -o "$OUTPUT_DIR"

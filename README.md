@@ -32,6 +32,9 @@ Executes all enumeration scripts against the IBM Cloud Account.
 #### - [get_custom_roles.sh](get_custom_roles.sh)
 Enumerates custom IAM roles to be verified for excessive privileges granted to users.
 
+#### - [get_user_policies.sh](get_user_policies.sh)
+Identifies users with access policies assigned directly (not via groups) in the IBM Cloud account. Outputs user_id and policies in jq-formatted JSON for each such user.
+
 #### - [get_api_keys.sh](get_api_keys.sh)
 Enumerates existing API Keys and identifies those not rotated within a configurable period (default: 90 days).
 
@@ -73,7 +76,6 @@ This script retrieves all API keys in the IBM Cloud account.
 ```
 
 ## TODO
-- get_policies.sh
 - get_resources.sh
 - get_users.sh
 - get_mfa.sh

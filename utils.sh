@@ -86,7 +86,7 @@ warning() {
 }
 
 get_regions() {
-    REGIONS=$(ibmcloud regions --output json | jq -r '.[].Name') || { failure "Could not retrieve regions. Retry." }
+    REGIONS=$(ibmcloud regions --output json | jq -r '.[].Name') || failure "Could not retrieve regions. Retry."
     if [[ -z "${REGIONS:-}" ]]; then
         failure "No regions found. Please ensure you are logged in to IBM Cloud."
     fi
