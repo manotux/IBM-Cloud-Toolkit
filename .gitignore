@@ -4,5 +4,4 @@ public_buckets.py
 draft.sh
 get_mfa.sh
 get_resources.sh
-get_users.sh
 .DS_Store

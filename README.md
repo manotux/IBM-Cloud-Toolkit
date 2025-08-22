@@ -32,6 +32,9 @@ Executes all enumeration scripts against the IBM Cloud Account.
 #### - [get_custom_roles.sh](get_custom_roles.sh)
 Enumerates custom IAM roles to be verified for excessive privileges granted to users.
 
+#### - [get_users.sh](get_users.sh)
+Enumerates existing users and identifies any with state different than ACTIVE.
+
 #### - [get_user_policies.sh](get_user_policies.sh)
 Identifies users with access policies assigned directly (not via groups) in the IBM Cloud account. Outputs user_id and policies in jq-formatted JSON for each such user.
 

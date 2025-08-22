@@ -81,7 +81,7 @@ fi
 IBMCLOUD_ACCOUNT_ID=$(ibmcloud_account_id)
 
 if [[ -z "${IBMCLOUD_ACCOUNT_ID:-}" || "$IBMCLOUD_ACCOUNT_ID" == "null" ]]; then
-    failure "Failed to obtain IBM Cloud account ID. Make sure you are logged in and targeting an account."
+    failure "Failed to obtain IBM Cloud account ID. Make sure you are logged in."
 fi
 
 # Enumerate users
