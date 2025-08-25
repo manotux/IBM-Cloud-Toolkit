@@ -1,8 +1,3 @@
-
-
-##### INCOMPLETE - needs to check regions available to avoid saving the same information repeateadly. on a few regions available for schematics
-
-
 #!/usr/bin/env bash
 
 # get_schematics.sh
