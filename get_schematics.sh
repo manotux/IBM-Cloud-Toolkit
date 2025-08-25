@@ -89,13 +89,14 @@ for region in $REGIONS; do
     ALL_WORKSPACES_JSON=$(jq -s 'add' <(echo "$ALL_WORKSPACES_JSON") <(echo "$REGION_WORKSPACES"))
     unset WORKSPACES_JSON REGION_WORKSPACES
 
-    if [[ "$ALL_WORKSPACES_JSON" == "[]" ]]; then
-        echo "No Schematics workspaces found."
-        exit 0
-    fi
 done
+
+if [[ "$ALL_WORKSPACES_JSON" == "[]" ]]; then
+    echo "No Schematics workspaces found."
+    exit 0
+fi
 
 : > "$OUTPUT_PATH" || failure "Error while creating the output file: ${BOLD}$OUTPUT_PATH${RESET}"
 echo "$ALL_WORKSPACES_JSON" | jq '.' > "$OUTPUT_PATH"
 echo -e "All Schematics workspaces saved to: ${BOLD}${OUTPUT_PATH}${RESET}"
-echo -e "Review this file for secrets in variables manually or with tools like TruffleHog or detect-secrets."
+echo -e "Review this file for secrets in variables using tools like TruffleHog/detect-secrets or manually."
