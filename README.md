@@ -56,6 +56,9 @@ Enumerates all floating IPs in each enabled IBM Cloud region.
 #### - [get_VSIs.sh](get_VSIs.sh)
 Enumerates all VSIs (IBM Cloud VMs) in each enabled IBM Cloud region. Also generates a separate file for VSIs with metadata enabled.
 
+#### - [get_schematics.sh](get_schematics.sh)
+Enumerates all IBM Cloud Schematics workspaces in each enabled region and outputs their configuration as a JSON array. The output can be reviewed manually or with tools like [TruffleHog](https://github.com/trufflesecurity/trufflehog) or [detect-secrets](https://github.com/Yelp/detect-secrets) to identify secrets (such as API keys, SSH keys, or passwords) stored in variables not flagged as sensitive and in Terraform templates.
+
 #### - [get_clusters.sh](get_clusters.sh)
 Enumerates all IBM Cloud Kubernetes/Openshift clusters using the IBM Cloud REST API. Also generates a separate file for clusters with public endpoint enabled.
 
@@ -83,6 +86,8 @@ This script retrieves all API keys in the IBM Cloud account.
 - get_users.sh
 - get_mfa.sh
 - Support for handling multiple IBM Cloud accounts in batch mode across all enumeration scripts.
+- Document permissions required on IBM Cloud account to be verified
+- Implement pagination support in all modules as in get_user_policies.sh
 - Implement different output formats (json, table, csv)
 
 ## Author

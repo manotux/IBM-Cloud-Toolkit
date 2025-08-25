@@ -75,6 +75,13 @@ require_ibmcloud_cdb() {
     fi
 }
 
+# Check if IBM Cloud schematics plugin ("sch") is installed
+require_ibmcloud_schematics() {
+    if ! ibmcloud plugin list | grep -qw "schematics"; then
+        failure "IBM Cloud schematics plugin ('sch') is not installed. Please run: ibmcloud plugin install schematics"
+    fi
+}
+
 # Failure function
 failure() {
     echo -e "${BOLD}${BRIGHT_RED}FAILED: ${RESET}$*"
