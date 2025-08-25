@@ -79,6 +79,8 @@ fi
 
 "$srcdir/get_VSIs.sh" -o "$OUTPUT_DIR"
 
+"$srcdir/get_buckets.sh" -o "$OUTPUT_DIR"
+
 "$srcdir/get_schematics.sh" -o "$OUTPUT_DIR"
 
 "$srcdir/get_clusters.sh" -o "$OUTPUT_DIR"

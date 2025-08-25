@@ -56,6 +56,9 @@ Enumerates all floating IPs in each enabled IBM Cloud region.
 #### - [get_VSIs.sh](get_VSIs.sh)
 Enumerates all VSIs (IBM Cloud VMs) in each enabled IBM Cloud region. Also generates a separate file for VSIs with metadata enabled.
 
+#### - [get_buckets.sh](get_buckets.sh)
+Enumerates all IBM Cloud Object Storage buckets in the account and outputs them as a JSON array.
+
 #### - [get_schematics.sh](get_schematics.sh)
 Enumerates all IBM Cloud Schematics workspaces in each enabled region and outputs their configuration as a JSON array. The output can be reviewed manually or with tools like [TruffleHog](https://github.com/trufflesecurity/trufflehog) or [detect-secrets](https://github.com/Yelp/detect-secrets) to identify secrets (such as API keys, SSH keys, or passwords) stored in variables not flagged as sensitive and in Terraform templates.
 
