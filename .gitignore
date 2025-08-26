@@ -1,7 +1,7 @@
 output
 get_regions.py
 public_buckets.py
-draft.sh
+draft
 get_mfa.sh
 get_resources.sh
 .DS_Store
