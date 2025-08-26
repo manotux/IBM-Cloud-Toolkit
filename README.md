@@ -11,7 +11,13 @@ While there are several well-established open-source tools for major cloud provi
 
 Contributions and community feedback are welcome! If you find these scripts useful, have suggestions for improvements, feature requests, or want to contribute in any way, feel free to open an issue or submit a PR.
 
-## Requirements
+## Prerequisites
+- Permissions
+
+Required permissions may vary depending on the services being audited. At minimum, reader/viewer privileges should be assigned as illustrated in the exemple below:
+
+![IBM Cloud recommended permissions](IBMCloud_permissions.png)
+
 - IBM Cloud CLI
 - The `jq` utility - lightweight command-line JSON processor
 - Authenticated session
@@ -59,6 +65,9 @@ Enumerates all VSIs (IBM Cloud VMs) in each enabled IBM Cloud region. Also gener
 #### - [get_buckets.sh](get_buckets.sh)
 Enumerates all IBM Cloud Object Storage buckets in the account and outputs them as a JSON array.
 
+#### - [get_buckets_files.sh](get_buckets_files.sh)
+WIP - Lists all files in all IBM Cloud Object Storage buckets. For each bucket, outputs a section with the bucket name and a list of files it contains.
+
 #### - [get_schematics.sh](get_schematics.sh)
 Enumerates all IBM Cloud Schematics workspaces in each enabled region and outputs their configuration as a JSON array. The output can be reviewed manually or with tools like [TruffleHog](https://github.com/trufflesecurity/trufflehog) or [detect-secrets](https://github.com/Yelp/detect-secrets) to identify secrets (such as API keys, SSH keys, or passwords) stored in variables not flagged as sensitive and in Terraform templates.
 
@@ -86,10 +95,8 @@ This script retrieves all API keys in the IBM Cloud account.
 
 ## TODO
 - get_resources.sh
-- get_users.sh
 - get_mfa.sh
 - Support for handling multiple IBM Cloud accounts in batch mode across all enumeration scripts.
-- Document permissions required on IBM Cloud account to be verified
 - Implement pagination support in all modules as in get_user_policies.sh
 - Implement different output formats (json, table, csv)
 
