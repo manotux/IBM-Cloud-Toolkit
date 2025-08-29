@@ -14,7 +14,7 @@ Contributions and community feedback are welcome! If you find these scripts usef
 ## Prerequisites
 - Permissions
 
-Required permissions may vary depending on the services being audited. At minimum, reader/viewer privileges should be assigned as illustrated in the exemple below:
+Required permissions may vary depending on the services being audited. At minimum, reader/viewer privileges should be assigned to the user as illustrated in the exemple below:
 
 ![IBM Cloud recommended permissions](IBMCloud_permissions.png)
 
@@ -29,6 +29,25 @@ To install the IBM Cloud CLI, you can use the provided script:
 ```
 
 Or follow the instructions at [IBM Cloud CLI Installation Guide](https://cloud.ibm.com/docs/cli?topic=cli-install-ibmcloud-cli).
+
+## Quick Start
+IBM Cloud ToolKit is modular and you can run any script individually. The script ibm_cloud_enum.sh executes all the modules with default options.
+
+## Usage
+Each script has its own Usage instructions documented in the code and that can be verified through the -h option. Example for `get_api_keys.sh`:
+
+```
+$ ./get_api_keys.sh -h
+Usage: ./get_api_keys.sh [-h] [-o OUTPUT_DIR] [-f OUTPUT_FILE]
+
+Options:
+  -h              Show this help message
+  -o OUTPUT_DIR   Specify the output folder for results (default: 'output')
+  -f OUTPUT_FILE  Specify the output file name (default: 'api_keys.txt')
+  -d ROTATION_DAYS  Set the rotation threshold in days (default: 90)
+
+This script retrieves all API keys in the IBM Cloud account.
+```
 
 ## Scripts
 
@@ -77,25 +96,10 @@ Enumerates all IBM Cloud Kubernetes/Openshift clusters using the IBM Cloud REST 
 #### - [get_databases.sh](get_databases.sh)
 Enumerates all IBM Cloud Databases. Also generates a separate file for databases with public endpoint enabled.
 
-## Usage
-Each script has its own Usage instructions documented in the code and that can be verified through the -h option. Example for `get_api_keys.sh`:
-
-```
-$ ./get_api_keys.sh -h
-Usage: ./get_api_keys.sh [-h] [-o OUTPUT_DIR] [-f OUTPUT_FILE]
-
-Options:
-  -h              Show this help message
-  -o OUTPUT_DIR   Specify the output folder for results (default: 'output')
-  -f OUTPUT_FILE  Specify the output file name (default: 'api_keys.txt')
-  -d ROTATION_DAYS  Set the rotation threshold in days (default: 90)
-
-This script retrieves all API keys in the IBM Cloud account.
-```
-
 ## TODO
 - get_resources.sh
 - get_mfa.sh
+- Picture of ibm_cloud_enum.sh execution
 - Support for handling multiple IBM Cloud accounts in batch mode across all enumeration scripts.
 - Implement pagination support in all modules as in get_user_policies.sh
 - Implement different output formats (json, table, csv)

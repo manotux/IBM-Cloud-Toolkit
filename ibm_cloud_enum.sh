@@ -81,6 +81,8 @@ fi
 
 "$srcdir/get_buckets.sh" -o "$OUTPUT_DIR"
 
+"$srcdir/get_buckets_files.sh" -o "$OUTPUT_DIR"
+
 "$srcdir/get_schematics.sh" -o "$OUTPUT_DIR"
 
 "$srcdir/get_clusters.sh" -o "$OUTPUT_DIR"
