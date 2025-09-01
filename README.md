@@ -74,9 +74,6 @@ Enumerates enabled regions on the IBM Cloud account.
 #### - [install_ibmcloud_cli.sh](install_ibmcloud_cli.sh)
 Automates the installation of the IBM Cloud CLI for macOS and Linux.
 
-#### - [public_buckets.py](public_buckets.py)
-Verifies if public access is enabled on the IBM Cloud account and enumerates all Cloud Object Storage buckets that are publicly accessible from the Internet.
-
 #### - [get_floating_IPs.sh](get_floating_IPs.sh)
 Enumerates all floating IPs in each enabled IBM Cloud region.
 
@@ -87,10 +84,10 @@ Enumerates all VSIs (IBM Cloud VMs) in each enabled IBM Cloud region. Also gener
 Enumerates all IBM Cloud Object Storage buckets in the account and outputs them as a JSON array.
 
 #### - [get_buckets_files.sh](get_buckets_files.sh)
-WIP - Lists all files in all IBM Cloud Object Storage buckets. For each bucket, outputs a section with the bucket name and a list of files it contains.
+Lists all files in existing IBM Cloud Object Storage buckets. For each bucket, outputs a section with the bucket name and a list of files it contains.
 
 #### - [get_schematics.sh](get_schematics.sh)
-Enumerates all IBM Cloud Schematics workspaces in each enabled region and outputs their configuration as a JSON array. The output can be reviewed manually or with tools like [TruffleHog](https://github.com/trufflesecurity/trufflehog) or [detect-secrets](https://github.com/Yelp/detect-secrets) to identify secrets (such as API keys, SSH keys, or passwords) stored in variables not flagged as sensitive and in Terraform templates.
+Enumerates all IBM Cloud Schematics workspaces in each enabled region and outputs their configuration as a JSON array. The output can be reviewed manually or with tools like [TruffleHog](https://github.com/trufflesecurity/trufflehog) or [detect-secrets](https://github.com/Yelp/detect-secrets) to identify secrets (such as API keys, SSH keys, or passwords) stored in variables and not flagged as sensitive.
 
 #### - [get_clusters.sh](get_clusters.sh)
 Enumerates all IBM Cloud Kubernetes/Openshift clusters using the IBM Cloud REST API. Also generates a separate file for clusters with public endpoint enabled.
