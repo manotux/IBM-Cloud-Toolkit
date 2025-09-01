@@ -57,22 +57,36 @@ if [ ! -d "$OUTPUT_DIR" ]; then
 fi
 
 OUTPUT_PATH="${OUTPUT_DIR}/${OUTPUT_FILE}"
-: > "$OUTPUT_PATH" || failure "Error while creating the output file: ${BOLD}$OUTPUT_PATH${RESET}"
 
 echo " "
 echo "${SEPARATOR}"
-echo "Enumerating floating IPs in all enabled IBM Cloud regions..."
+echo -e "Enumerating ${ORANGE}${BOLD}floating IPs${RESET} in all enabled IBM Cloud regions..."
 echo " "
 
 REGIONS=$(get_regions)
+
+ALL_IPS=""
 
 for region in $REGIONS; do
     if ! ibmcloud target -r "$region" -q &>/dev/null; then
         warning "Failed to target region $region"
         continue
     fi
-    ibmcloud is floating-ips -q 2>/dev/null | awk 'NR>1 {print $2}' >> "$OUTPUT_PATH" || warning "Failed to retrieve floating IPs for region $region"
+    IPS=$(ibmcloud is floating-ips -q 2>/dev/null | awk 'NR>1 {print $2}') || warning "Failed to retrieve floating IPs for region $region"
+    if [[ -n "$IPS" ]]; then
+        ALL_IPS+="$IPS\n"
+    fi
+
 done
+
+if [[ -z "$ALL_IPS:-" ]]; then
+    echo "No floating IPs found."
+    exit 0
+fi
+
+# Remove trailing newline and save to OUTPUT_PATH
+: > "$OUTPUT_PATH" || failure "Error while creating the output file: ${BOLD}$OUTPUT_PATH${RESET}"
+echo -e "$ALL_IPS" | sed '/^$/d' > "$OUTPUT_PATH"
 
 echo -e "All floating IPs saved to: ${BOLD}${OUTPUT_PATH}${RESET}"
 

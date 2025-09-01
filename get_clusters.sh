@@ -58,13 +58,11 @@ if [ ! -d "$OUTPUT_DIR" ]; then
 fi
 
 OUTPUT_PATH="${OUTPUT_DIR}/${OUTPUT_FILE}"
-: > "$OUTPUT_PATH" || failure "Error while creating the output file: ${BOLD}$OUTPUT_PATH${RESET}"
 PUBLIC_ENDPOINT_OUTPUT_PATH="${OUTPUT_DIR}/public_endpoint_${OUTPUT_FILE}"
-: > "$PUBLIC_ENDPOINT_OUTPUT_PATH" || failure "Error while creating the output file: ${BOLD}$PUBLIC_ENDPOINT_OUTPUT_PATH${RESET}"
 
 echo " "
 echo "${SEPARATOR}"
-echo "Enumerating IBM Cloud Clusters..."
+echo -e "Enumerating IBM Cloud ${ORANGE}${BOLD}Clusters${RESET}..."
 echo " "
 
 # Check for API key
@@ -86,6 +84,8 @@ if [[ -z "${CLUSTERS_JSON:-}" || "$CLUSTERS_JSON" == "[]" || "$CLUSTERS_JSON" ==
     exit 0
 fi
 
+: > "$OUTPUT_PATH" || failure "Error while creating the output file: ${BOLD}$OUTPUT_PATH${RESET}"
+
 # Extract required fields for all clusters
 CLUSTERS_OUT=$(echo "$CLUSTERS_JSON" | jq '[.[] | {name, region, masterKubeVersion, type, publicServiceEndpointEnabled: .serviceEndpoints.publicServiceEndpointEnabled, publicServiceEndpointURL: .serviceEndpoints.publicServiceEndpointURL}]')
 echo "$CLUSTERS_OUT" | jq '.' > "$OUTPUT_PATH"
@@ -94,9 +94,9 @@ echo -e "All clusters saved to: ${BOLD}${OUTPUT_PATH}${RESET}"
 # Filter clusters with public endpoint enabled
 PUBLIC_CLUSTERS=$(echo "$CLUSTERS_OUT" | jq '[.[] | select(.publicServiceEndpointEnabled == true)]')
 if [[ $(echo "$PUBLIC_CLUSTERS" | jq 'length') -gt 0 ]]; then
+    : > "$PUBLIC_ENDPOINT_OUTPUT_PATH" || failure "Error while creating the output file: ${BOLD}$PUBLIC_ENDPOINT_OUTPUT_PATH${RESET}"
     echo "$PUBLIC_CLUSTERS" | jq '.' > "$PUBLIC_ENDPOINT_OUTPUT_PATH"
     echo -e "Clusters with public endpoint saved to: ${BOLD}${PUBLIC_ENDPOINT_OUTPUT_PATH}${RESET}"
 else
-    rm -f "$PUBLIC_ENDPOINT_OUTPUT_PATH"
     echo "No clusters with public endpoint enabled found."
 fi

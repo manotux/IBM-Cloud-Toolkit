@@ -62,7 +62,7 @@ OUTPUT_PATH="${OUTPUT_DIR}/${OUTPUT_FILE}"
 
 echo " "
 echo "${SEPARATOR}"
-echo "Enumerating Schematics workspaces ..."
+echo -e "Enumerating ${ORANGE}${BOLD}Schematics${RESET} workspaces ..."
 echo " "
 
 # Use only valid Schematics locations

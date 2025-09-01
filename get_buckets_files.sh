@@ -52,6 +52,7 @@ while getopts ":ho:f:" opt; do
 done
 
 require_ibmcloud_jq
+require_ibmcloud_cos
 require_ibmcloud_login
 
 if [ ! -d "$OUTPUT_DIR" ]; then
@@ -63,7 +64,7 @@ OUTPUT_PATH="${OUTPUT_DIR}/${OUTPUT_FILE}"
 
 echo " "
 echo "${SEPARATOR}"
-echo "Enumerating files in all IBM Cloud Object Storage buckets..."
+echo -e "Enumerating ${ORANGE}${BOLD}files${RESET} in all IBM Cloud Object Storage buckets..."
 echo " "
 
 # Get all COS service instances (no region iteration needed)

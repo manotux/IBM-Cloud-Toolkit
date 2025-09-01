@@ -58,11 +58,10 @@ if [ ! -d "$OUTPUT_DIR" ]; then
 fi
 
 OUTPUT_PATH="${OUTPUT_DIR}/${OUTPUT_FILE}"
-: > "$OUTPUT_PATH" || failure "Error while creating the output file: ${BOLD}$OUTPUT_PATH${RESET}"
 
 echo " "
 echo "${SEPARATOR}"
-echo "Identifying users with direct access policies in IBM Cloud account..."
+echo -e "Enumerating Users with ${ORANGE}${BOLD}direct access policies${RESET} in IAM..."
 echo " "
 
 # Check for API key
@@ -91,6 +90,7 @@ if [[ -z "${USERS_JSON:-}" || "$USERS_JSON" == "[]" || "$USERS_JSON" == "null" ]
 fi
 
 USERS_FOUND=0
+USER_POLICIES=""
 
 while IFS= read -r user; do
     IAM_ID=("$(echo "$user" | jq -r '.iam_id')")
@@ -98,15 +98,15 @@ while IFS= read -r user; do
     POLICIES=$(curl -s -X GET "https://iam.cloud.ibm.com/v1/policies?account_id=$IBMCLOUD_ACCOUNT_ID&iam_id=$IAM_ID" -H "Authorization: Bearer $IBMCLOUD_ACCESS_TOKEN")
     if [[ $(echo "$POLICIES" | jq '.policies | length') -gt 0 ]]; then
         USERS_FOUND=1
-        echo "User ID: $USER_ID" >> "$OUTPUT_PATH"
-        echo "$POLICIES" | jq '.' >> "$OUTPUT_PATH"
-        echo >> "$OUTPUT_PATH"
+        USER_POLICIES+="User ID: $USER_ID"$'\n'
+        USER_POLICIES+="$(echo "$POLICIES" | jq '.')"$'\n\n'
     fi
 done < <(echo "$USERS_JSON" | jq -c '.resources[]')
 
 if [[ $USERS_FOUND -eq 1 ]]; then
+    : > "$OUTPUT_PATH" || failure "Error while creating the output file: ${BOLD}$OUTPUT_PATH${RESET}"
+    echo -e "$USER_POLICIES" > "$OUTPUT_PATH"
     echo -e "Users with direct access policies saved to: ${BOLD}${OUTPUT_PATH}${RESET}"
 else
     echo "No users with direct access policies found."
-    rm -f "$OUTPUT_PATH"
 fi

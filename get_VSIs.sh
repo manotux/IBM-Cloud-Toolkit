@@ -59,13 +59,11 @@ if [ ! -d "$OUTPUT_DIR" ]; then
 fi
 
 OUTPUT_PATH="${OUTPUT_DIR}/${OUTPUT_FILE}"
-: > "$OUTPUT_PATH" || failure "Error while creating the output file: ${BOLD}$OUTPUT_PATH${RESET}"
 METADATA_ENABLED_OUTPUT_PATH="${OUTPUT_DIR}/metadata_enabled_${OUTPUT_FILE}"
-: > "$METADATA_ENABLED_OUTPUT_PATH" || failure "Error while creating the output file: ${BOLD}$METADATA_ENABLED_OUTPUT_PATH${RESET}"
 
 echo " "
 echo "${SEPARATOR}"
-echo "Enumerating VSIs in all enabled IBM Cloud regions..."
+echo -e "Enumerating ${ORANGE}${BOLD}VSIs${RESET} in all enabled IBM Cloud regions..."
 echo " "
 
 REGIONS=$(get_regions)
@@ -82,6 +80,7 @@ for region in $REGIONS; do
     if [[ -z "${VSI_JSON:-}" || "$VSI_JSON" == "[]" || "$VSI_JSON" == "null" ]]; then
         continue
     fi
+    
     # Extract required fields and build JSON objects
     REGION_VSI=$(echo "$VSI_JSON" | jq '[.[] | {id: .id, name: .name, image: .image.name, metadata_enabled: .metadata_service.enabled, floating_IPs: (if .network_interfaces then ([.network_interfaces[]?.floating_ips[]?.address] | join(", ")) else "" end)}]')
     ALL_VSI_JSON=$(jq -s 'add' <(echo "$ALL_VSI_JSON") <(echo "$REGION_VSI"))
@@ -93,14 +92,21 @@ for region in $REGIONS; do
     unset VSI_JSON REGION_VSI REGION_METADATA_ENABLED
 done
 
+if [[ -z "${ALL_VSI_JSON:-}" || "$ALL_VSI_JSON" == "[]" || "$ALL_VSI_JSON" == "null" ]]; then
+    echo "No VSIs found."
+    exit 0
+fi
+
+: > "$OUTPUT_PATH" || failure "Error while creating the output file: ${BOLD}$OUTPUT_PATH${RESET}"
+
 echo "$ALL_VSI_JSON" | jq '.' > "$OUTPUT_PATH"
 echo -e "All VSIs saved to: ${BOLD}${OUTPUT_PATH}${RESET}"
 
 if [[ $(echo "$METADATA_ENABLED_VSIS_JSON" | jq 'length') -gt 0 ]]; then
+    : > "$METADATA_ENABLED_OUTPUT_PATH" || failure "Error while creating the output file: ${BOLD}$METADATA_ENABLED_OUTPUT_PATH${RESET}"
     echo "$METADATA_ENABLED_VSIS_JSON" | jq '.' > "$METADATA_ENABLED_OUTPUT_PATH"
     echo -e "VSIs with metadata enabled saved to: ${BOLD}${METADATA_ENABLED_OUTPUT_PATH}${RESET}"
 else
-    rm -f "$METADATA_ENABLED_OUTPUT_PATH"
     echo "No VSIs with metadata enabled found."
 fi
 

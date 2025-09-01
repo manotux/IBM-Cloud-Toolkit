@@ -63,13 +63,11 @@ if [ ! -d "$OUTPUT_DIR" ]; then
     mkdir -p "$OUTPUT_DIR" || failure "Error while creating the output directory: ${BOLD}$OUTPUT_DIR${RESET}"
 fi
 
-# Ensure output file exists
 OUTPUT_PATH="${OUTPUT_DIR}/${OUTPUT_FILE}"
-: > "$OUTPUT_PATH" || failure "Error while creating the output file: ${BOLD}$OUTPUT_PATH${RESET}"
 
 echo " "
 echo "${SEPARATOR}"
-echo "Enumerating all custom IAM roles in IBM Cloud account..."
+echo -e "Enumerating all ${ORANGE}${BOLD}custom IAM roles${RESET} ..."
 echo " "
 
 # Check for API key
@@ -99,6 +97,7 @@ CUSTOM_ROLES=$(curl -s -X GET \
 if [[ -z "${CUSTOM_ROLES:-}" || "$CUSTOM_ROLES" == "[]" || "$CUSTOM_ROLES" == "null" ]]; then
     echo "No custom roles found."
 else
+    : > "$OUTPUT_PATH" || failure "Error while creating the output file: ${BOLD}$OUTPUT_PATH${RESET}"
     echo "$CUSTOM_ROLES" | jq > "$OUTPUT_PATH"
     echo -e "Output with all custom roles saved to: ${BOLD}${OUTPUT_PATH}${RESET}. Investigate for excessive privileges."
 fi

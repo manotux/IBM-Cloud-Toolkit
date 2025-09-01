@@ -73,15 +73,10 @@ fi
 
 # Ensure the output file exists
 OUTPUT_PATH="${OUTPUT_DIR}/${OUTPUT_FILE}"
-: > "$OUTPUT_PATH" || failure "Error while creating the output file: ${BOLD}$OUTPUT_PATH${RESET}"
-
-# Prepare output for non-rotated keys
-NON_ROTATED_OUTPUT_PATH="${OUTPUT_DIR}/non_rotated_${OUTPUT_FILE}"
-: > "$NON_ROTATED_OUTPUT_PATH" || failure "Error while creating the output file: ${BOLD}$NON_ROTATED_OUTPUT_PATH${RESET}"
 
 echo " "
 echo "${SEPARATOR}"
-echo "Retrieving all API keys in IBM Cloud account..."
+echo -e "Enumerating all ${ORANGE}${BOLD}API keys${RESET} ..."
 echo " "
 
 API_KEYS=$(ibmcloud iam api-keys -a -o JSON | jq '[.[] | {id, name, created_at, created_by}]')
@@ -89,11 +84,12 @@ API_KEYS=$(ibmcloud iam api-keys -a -o JSON | jq '[.[] | {id, name, created_at, 
 if [[ -z "${API_KEYS:-}" ]]; then
     echo "No API keys found."
 else
+    : > "$OUTPUT_PATH" || failure "Error while creating the output file: ${BOLD}$OUTPUT_PATH${RESET}"
     echo "${API_KEYS}" > "$OUTPUT_PATH"
     echo -e "Output saved to: ${BOLD}${OUTPUT_PATH}${RESET}"
 
     NOW_EPOCH=$(date +%s)
-    NON_ROTATED_FOUND=0
+    NON_ROTATED_LINES=()
 
     while read -r line; do
         id=$(jq -r '.id' <<< "$line")
@@ -107,20 +103,19 @@ else
         # Convert created_at to epoch seconds
         created_epoch=$(date -j -f "%Y-%m-%dT%H:%M%z" "$created_at" +%s 2>/dev/null || date -d "$created_at" +%s 2>/dev/null)
         [[ -z "$created_epoch" ]] && continue
-   
+
         age_days=$(( (NOW_EPOCH - created_epoch) / 86400 ))
 
         if (( age_days > ROTATION_DAYS )); then
-            echo "$line" >> "$NON_ROTATED_OUTPUT_PATH"
-            NON_ROTATED_FOUND=1
+            NON_ROTATED_LINES+=("$line")
         fi
     done < <(echo "$API_KEYS" | jq -c '.[]')
 
-    if (( NON_ROTATED_FOUND )); then
-        jq -s '.' "$NON_ROTATED_OUTPUT_PATH" > "${NON_ROTATED_OUTPUT_PATH}.tmp" && mv "${NON_ROTATED_OUTPUT_PATH}.tmp" "$NON_ROTATED_OUTPUT_PATH"
+    if (( ${#NON_ROTATED_LINES[@]} > 0 )); then
+        NON_ROTATED_OUTPUT_PATH="${OUTPUT_DIR}/non_rotated_${OUTPUT_FILE}"
+        printf "%s\n" "${NON_ROTATED_LINES[@]}" | jq -s '.' > "$NON_ROTATED_OUTPUT_PATH" || failure "Error while creating the output file: ${BOLD}$NON_ROTATED_OUTPUT_PATH${RESET}"
         echo -e "API keys not rotated in the last ${BOLD}${ROTATION_DAYS} days${RESET} saved to: ${BOLD}${NON_ROTATED_OUTPUT_PATH}${RESET}"
     else
         echo "All API keys have been rotated within the last ${BOLD}${ROTATION_DAYS} days${RESET}."
-        rm -f "$NON_ROTATED_OUTPUT_PATH"
     fi
 fi

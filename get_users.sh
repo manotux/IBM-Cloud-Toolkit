@@ -60,13 +60,11 @@ if [ ! -d "$OUTPUT_DIR" ]; then
 fi
 
 OUTPUT_PATH="${OUTPUT_DIR}/${OUTPUT_FILE}"
-: > "$OUTPUT_PATH" || failure "Error while creating the output file: ${BOLD}$OUTPUT_PATH${RESET}"
 INACTIVE_PATH="${OUTPUT_DIR}/inactive_${OUTPUT_FILE}"
-: > "$INACTIVE_PATH" || failure "Error while creating the output file: ${BOLD}$INACTIVE_PATH${RESET}"
 
 echo " "
 echo "${SEPARATOR}"
-echo "Retrieving all users in IBM Cloud account..."
+echo -e "Enumerating all ${ORANGE}${BOLD}Users${RESET} in IAM..."
 echo " "
 
 # Check for API key
@@ -111,8 +109,11 @@ if [[ -z "${USERS_JSON_ALL:-}" || "$USERS_JSON_ALL" == "[]" || "$USERS_JSON_ALL"
     failure "Failed to retrieve users for account $IBMCLOUD_ACCOUNT_ID."
 fi
 
-USERS_FOUND=0
+: > "$OUTPUT_PATH" || failure "Error while creating the output file: ${BOLD}$OUTPUT_PATH${RESET}"
+
 INACTIVE_FOUND=0
+INACTIVE_USERS=()
+IAM_USER=""
 
 while IFS= read -r user; do
     iam_id=$(echo "$user" | jq -r '.iam_id')
@@ -124,25 +125,21 @@ while IFS= read -r user; do
     user_activity_json=$(curl -s -X GET "https://iam.cloud.ibm.com/v2/accounts/$IBMCLOUD_ACCOUNT_ID/users/$iam_id?include_activity=true" -H "Authorization: Bearer $IBMCLOUD_ACCESS_TOKEN")
     last_activity=$(echo "$user_activity_json" | jq -r '.activity // empty')
 
-    jq -n --arg iam_id "$iam_id" --arg user_id "$user_id" --arg email "$email" --arg state "$state" --arg last_activity "$last_activity" '{iam_id: $iam_id, user_id: $user_id, email: $email, state: $state, last_activity: $last_activity}' >> "$OUTPUT_PATH"
-    USERS_FOUND=1
+    IAM_USER=$(jq -n --arg iam_id "$iam_id" --arg user_id "$user_id" --arg email "$email" --arg state "$state" --arg last_activity "$last_activity" '{iam_id: $iam_id, user_id: $user_id, email: $email, state: $state, last_activity: $last_activity}')
+    echo "${IAM_USER}" | jq >> "$OUTPUT_PATH"
     if [[ "$state" != "ACTIVE" ]]; then
-        jq -n --arg iam_id "$iam_id" --arg user_id "$user_id" --arg email "$email" --arg state "$state" --arg last_activity "$last_activity" '{iam_id: $iam_id, user_id: $user_id, email: $email, state: $state, last_activity: $last_activity}' >> "$INACTIVE_PATH"
+        INACTIVE_USERS+=("${IAM_USER}")
         INACTIVE_FOUND=1
     fi
 done < <(echo "$USERS_JSON" | jq -c '.resources[]')
 
-if [[ $USERS_FOUND -eq 1 ]]; then
-    echo -e "All users saved to: ${BOLD}${OUTPUT_PATH}${RESET}"
-else
-    echo "No users found."
-    rm -f "$OUTPUT_PATH"
-fi
+echo -e "All users saved to: ${BOLD}${OUTPUT_PATH}${RESET}"
 
 if [[ $INACTIVE_FOUND -eq 1 ]]; then
+    : > "$INACTIVE_PATH" || failure "Error while creating the output file: ${BOLD}$INACTIVE_PATH${RESET}"
+    printf "%s\n" "${INACTIVE_USERS[@]}" | jq -s '.' > "$INACTIVE_PATH"
     echo -e "Inactive users saved to: ${BOLD}${INACTIVE_PATH}${RESET}"
 else
-    rm -f "$INACTIVE_PATH"
     echo "No inactive users found."
 fi
 

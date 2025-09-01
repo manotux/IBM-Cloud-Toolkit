@@ -59,14 +59,11 @@ if [ ! -d "$OUTPUT_DIR" ]; then
 fi
 
 OUTPUT_PATH="${OUTPUT_DIR}/${OUTPUT_FILE}"
-: > "$OUTPUT_PATH" || failure "Error while creating the output file: ${BOLD}$OUTPUT_PATH${RESET}"
 PUBLIC_ENDPOINT_OUTPUT_PATH="${OUTPUT_DIR}/public_endpoint_${OUTPUT_FILE}"
-: > "$PUBLIC_ENDPOINT_OUTPUT_PATH" || failure "Error while creating the output file: ${BOLD}$PUBLIC_ENDPOINT_OUTPUT_PATH${RESET}"
-
 
 echo " "
 echo "${SEPARATOR}"
-echo "Enumerating IBM Cloud Databases..."
+echo -e "Enumerating IBM Cloud ${ORANGE}${BOLD}Databases${RESET}..."
 echo " "
 
 DBS_JSON=$(ibmcloud cdb deployments --json 2>/dev/null) || failure "Failed to retrieve databases."
@@ -75,6 +72,8 @@ if [[ -z "${DBS_JSON:-}" || "$DBS_JSON" == "[]" || "$DBS_JSON" == "null" ]]; the
     echo "No databases found."
     exit 0
 fi
+
+: > "$OUTPUT_PATH" || failure "Error while creating the output file: ${BOLD}$OUTPUT_PATH${RESET}"
 
 # Enumerate databases with public endpoint enabled
 
@@ -102,9 +101,9 @@ echo -e "All databases saved to: ${BOLD}${OUTPUT_PATH}${RESET}"
 
 # Save databases with public endpoint to a separate file
 if [[ $(echo "$PUBLIC_ENDPOINT_DBS" | jq 'length') -gt 0 ]]; then
+    : > "$PUBLIC_ENDPOINT_OUTPUT_PATH" || failure "Error while creating the output file: ${BOLD}$PUBLIC_ENDPOINT_OUTPUT_PATH${RESET}"
     echo "$PUBLIC_ENDPOINT_DBS" | jq '.' > "$PUBLIC_ENDPOINT_OUTPUT_PATH"
     echo -e "Databases with public endpoint saved to: ${BOLD}${PUBLIC_ENDPOINT_OUTPUT_PATH}${RESET}"
 else
-    rm -f "$PUBLIC_ENDPOINT_OUTPUT_PATH"
     echo "No databases with public endpoint found."
 fi
