@@ -10,14 +10,15 @@
 # exported IBM Cloud API Key envvar (IBMCLOUD_API_KEY), and the following
 # plugins of IBM Cloud CLI: databases ("cdb"), vpc-infrastructure ("is")
 
-BANNER="
-########################################
-        IBM Cloud Enumeration
-   github.com/manotux/IBM-Cloud-Toolkit
-########################################"
-
 srcdir="$(dirname "${BASH_SOURCE[0]}")"
 . "$srcdir/utils.sh"
+
+BANNER="\n${BLUE}${BOLD}==============================================${RESET}
+${ORANGE}${BOLD}          IBM Cloud ToolKit v1.0${RESET}
+${BLUE}${BOLD}==============================================${RESET}
+IBM Cloud enumeration tool
+github.com/manotux/IBM-Cloud-Toolkit
+${BLUE}${BOLD}==============================================${RESET}\n"
 
 OUTPUT_DIR="output"
 
@@ -54,12 +55,27 @@ while getopts ":ho:" opt; do
     esac
 done
 
-echo "$BANNER"
+echo -e "$BANNER"
 
 require_ibmcloud_jq
 require_ibmcloud_cdb
 require_ibmcloud_is
+require_ibmcloud_schematics
+require_ibmcloud_cos
 require_ibmcloud_login
+
+# Dynamically retrieve and print IBM Cloud account info
+ACCOUNT_JSON=$(ibmcloud account show --output json 2>/dev/null)
+TARGET_JSON=$(ibmcloud target --output json 2>/dev/null)
+ACCOUNT_NAME=$(echo "$ACCOUNT_JSON" | jq -r '.name // "-"')
+ACCOUNT_ID=$(echo "$ACCOUNT_JSON" | jq -r '.account_id // "-"')
+SOFTLAYER_ID=$(echo "$ACCOUNT_JSON" | jq -r '.ims_account_id // "-"')
+USER_EMAIL=$(echo "$TARGET_JSON" | jq -r '.user.user_email // "-"')
+
+echo -e "${ORANGE}${BOLD}IBM Cloud Account:${RESET}"
+echo -e "· ${BOLD}Account Name:${RESET} $ACCOUNT_NAME"
+echo -e "· ${BOLD}Account ID / Softlayer Account:${RESET} $ACCOUNT_ID - $SOFTLAYER_ID"
+echo -e "· ${BOLD}User Email:${RESET} $USER_EMAIL"
 
 if [ ! -d "$OUTPUT_DIR" ]; then
     mkdir -p "$OUTPUT_DIR" || failure "Error while creating the output directory: ${BOLD}$OUTPUT_DIR${RESET}"
@@ -79,15 +95,15 @@ fi
 
 "$srcdir/get_VSIs.sh" -o "$OUTPUT_DIR"
 
-"$srcdir/get_buckets.sh" -o "$OUTPUT_DIR"
-
-"$srcdir/get_buckets_files.sh" -o "$OUTPUT_DIR"
-
 "$srcdir/get_schematics.sh" -o "$OUTPUT_DIR"
 
 "$srcdir/get_clusters.sh" -o "$OUTPUT_DIR"
 
 "$srcdir/get_databases.sh" -o "$OUTPUT_DIR"
+
+"$srcdir/get_buckets.sh" -o "$OUTPUT_DIR"
+
+"$srcdir/get_buckets_files.sh" -o "$OUTPUT_DIR"
 
 echo " "
 echo "${SEPARATOR}"

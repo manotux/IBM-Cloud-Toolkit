@@ -33,6 +33,8 @@ Or follow the instructions at [IBM Cloud CLI Installation Guide](https://cloud.i
 ## Quick Start
 IBM Cloud ToolKit is modular and you can run any script individually. The script ibm_cloud_enum.sh executes all the modules with default options.
 
+![ibm_cloud_enum.sh execution](ibm_cloud_enum.png)
+
 ## Usage
 Each script has its own Usage instructions documented in the code and that can be verified through the -h option. Example for `get_api_keys.sh`:
 
@@ -112,3 +114,9 @@ Heber Blain Gonçalves
 
 ## License
 This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
+
+## Disclaimer
+
+This project is a personal and community-driven initiative and is not affiliated with, endorsed by, or supported by IBM or IBM Cloud. IBM and IBM Cloud are not responsible for this project or any outcomes resulting from its use.
+
+This software is provided as-is, with no guarantees. Use it at your own risk. The author and contributors are not responsible for any problems, data loss, or damage that may happen.

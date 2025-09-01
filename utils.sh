@@ -7,6 +7,12 @@ set -euo pipefail
 BOLD="\033[1m"
 BRIGHT_RED="\033[91m"
 RESET="\033[0m"
+CYAN="\033[36m"
+YELLOW="\033[33m"
+MAGENTA="\033[35m"
+ORANGE="\033[38;5;208m"
+BLUE="\033[34m"
+
 
 #### Variables ####
 
@@ -79,6 +85,12 @@ require_ibmcloud_cdb() {
 require_ibmcloud_schematics() {
     if ! ibmcloud plugin list | grep -qw "schematics"; then
         failure "IBM Cloud schematics plugin ('sch') is not installed. Please run: ibmcloud plugin install schematics"
+    fi
+}
+
+require_ibmcloud_cos() {
+    if ! ibmcloud plugin list | grep -qw "cloud-object-storage"; then
+        failure "IBM Cloud cloud-object-storage plugin is not installed. Please run: ibmcloud plugin install cloud-object-storage"
     fi
 }
 
