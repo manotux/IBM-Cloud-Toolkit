@@ -69,10 +69,10 @@ OUTPUT_PATH="${OUTPUT_DIR}/${OUTPUT_FILE}"
 
 echo " "
 echo "${SEPARATOR}"
-echo "Retrieving enabled regions on IBM Cloud account..."
+echo -e "Enumerating enabled ${ORANGE}${BOLD}regions${RESET} on IBM Cloud account..."
 echo " "
 
-REGIONS=$(ibmcloud regions --output json | jq -r '.[].Name')
+REGIONS=$(ibmcloud regions --output json | jq -r '.[].Name') || failure "Could not retrieve regions. Retry."
 
 if [[ -z "${REGIONS:-}" ]]; then
     echo "No regions found."
