@@ -96,12 +96,9 @@ Enumerates all IBM Cloud Kubernetes/Openshift clusters using the IBM Cloud REST 
 Enumerates all IBM Cloud Databases. Also generates a separate file for databases with public endpoint enabled.
 
 ## TODO
-- get_resources.sh
 - get_mfa.sh
-- Picture of ibm_cloud_enum.sh execution
 - Support for handling multiple IBM Cloud accounts in batch mode across all enumeration scripts.
 - Implement pagination support in all modules as in get_user_policies.sh
-- Implement different output formats (json, table, csv)
 
 ## Author
 Heber Blain Gonçalves
