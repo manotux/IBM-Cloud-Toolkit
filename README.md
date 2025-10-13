@@ -68,6 +68,9 @@ Identifies users with access policies assigned directly (not via groups) in the 
 #### - [get_api_keys.sh](get_api_keys.sh)
 Enumerates existing API Keys and identifies those not rotated within a configurable period (default: 90 days).
 
+#### - [get_mfa.sh](get_mfa.sh)
+Retrieves the IBM Cloud account identity settings and determines the MFA requirement status.
+
 #### - [get_regions.sh](get_regions.sh)
 Enumerates enabled regions on the IBM Cloud account.
 
@@ -96,7 +99,6 @@ Enumerates all IBM Cloud Kubernetes/Openshift clusters using the IBM Cloud REST 
 Enumerates all IBM Cloud Databases. Also generates a separate file for databases with public endpoint enabled.
 
 ## TODO
-- get_mfa.sh
 - Support for handling multiple IBM Cloud accounts in batch mode across all enumeration scripts.
 - Implement pagination support in all modules as in get_user_policies.sh
 
