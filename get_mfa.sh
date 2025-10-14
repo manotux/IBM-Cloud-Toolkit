@@ -104,5 +104,5 @@ else
 fi
 
 if [[ "$USER_MFA_COUNT" -gt 0 ]]; then
-    echo -e "There are ${BOLD}user-specific MFA${RESET} configurations set in this account."
+    echo -e "There are ${BOLD}user-specific MFA${RESET} configurations set in this account, check the ouput file."
 fi
