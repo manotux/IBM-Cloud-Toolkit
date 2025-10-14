@@ -88,13 +88,20 @@ if [[ -z "${IDENTITY_JSON:-}" || "${IDENTITY_JSON}" == "null" ]]; then
     failure "Failed to retrieve account identity settings."
 fi
 
+: > "$OUTPUT_PATH" || failure "Error while creating the output file: ${BOLD}$OUTPUT_PATH${RESET}"
 echo "$IDENTITY_JSON" | jq '.' > "$OUTPUT_PATH"
-
-MFA_SETTING=$(echo "$IDENTITY_JSON" | jq -r '.mfa')
-
 echo -e "Account identity settings saved to: ${BOLD}${OUTPUT_PATH}${RESET}"
-echo -e "MFA setting for account ${BOLD}${IBMCLOUD_ACCOUNT_ID}${RESET}: ${CYAN}${MFA_SETTING}${RESET}"
+
+# Check account MFA setting and if there are user-specific MFA settings
+MFA_SETTING=$(echo "$IDENTITY_JSON" | jq -r '.mfa')
+USER_MFA_COUNT=$(echo "$IDENTITY_JSON" | jq '.user_mfa | length')
 
 if [[ "$MFA_SETTING" != "TOTP4ALL" ]]; then
-    echo -e "MFA might ${BOLD}not be required${RESET} for all users."
+    echo -e "MFA setting for account ${BOLD}${IBMCLOUD_ACCOUNT_ID}${RESET}: ${CYAN}${MFA_SETTING}${RESET}. MFA might ${BOLD}not be required${RESET} for all users."
+else
+    echo -e "MFA setting for account ${BOLD}${IBMCLOUD_ACCOUNT_ID}${RESET}: ${CYAN}${MFA_SETTING}${RESET}"
+fi
+
+if [[ "$USER_MFA_COUNT" -gt 0 ]]; then
+    echo -e "There are ${BOLD}user-specific MFA${RESET} configurations set in this account."
 fi
