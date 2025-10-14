@@ -51,6 +51,7 @@ done
 
 require_jq
 require_curl
+require_ibmcloud_login
 
 if [ ! -d "$OUTPUT_DIR" ]; then
     mkdir -p "$OUTPUT_DIR" || failure "Error while creating the output directory: ${BOLD}$OUTPUT_DIR${RESET}"
