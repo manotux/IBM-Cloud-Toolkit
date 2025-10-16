@@ -79,7 +79,7 @@ while IFS= read -r instance; do
     BUCKETS_JSON=$(ibmcloud cos buckets-extended --ibm-service-instance-id "$INSTANCE_CRN" --output json 2>/dev/null)
     
     # check if there are no buckets
-    if [[ -z "$BUCKETS_JSON:-" || "$BUCKETS_JSON" == "null" || $(echo "$BUCKETS_JSON" | jq '.Buckets == null') == "true" ]]; then
+    if [[ -z "{$BUCKETS_JSON:-}" || "$BUCKETS_JSON" == "null" || $(echo "$BUCKETS_JSON" | jq '.Buckets == null') == "true" ]]; then
         continue
     fi
 
@@ -92,7 +92,7 @@ while IFS= read -r instance; do
         # List files in the bucket (first 1000 objects)
         FILES_JSON=$(ibmcloud cos list-objects-v2 --bucket "$BUCKET_NAME" --region $BUCKET_REGION --output json 2>/dev/null)
         # If no files exist or list-objects-v2 does not return anything
-        if [[ -z "$FILES_JSON:-" || "$FILES_JSON" == "null" || $(echo "$FILES_JSON" | jq '.KeyCount == 0') == "true" ]]; then
+        if [[ -z "${FILES_JSON:-}" || "$FILES_JSON" == "null" || $(echo "$FILES_JSON" | jq '.KeyCount == 0') == "true" ]]; then
             echo "(No files found)" >> "$OUTPUT_PATH"
         else
             echo "${FILES_JSON}" | jq -r '.Contents[].Key' >> "$OUTPUT_PATH"

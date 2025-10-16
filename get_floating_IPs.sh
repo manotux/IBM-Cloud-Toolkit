@@ -79,7 +79,7 @@ for region in $REGIONS; do
 
 done
 
-if [[ -z "$ALL_IPS:-" ]]; then
+if [[ -z "${ALL_IPS:-}" ]]; then
     echo "No floating IPs found."
     exit 0
 fi

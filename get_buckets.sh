@@ -77,7 +77,7 @@ while IFS= read -r instance; do
     BUCKETS_JSON=$(ibmcloud cos buckets --ibm-service-instance-id "$INSTANCE_CRN" --output json 2>/dev/null)
 
     # check if there are no buckets
-    if [[ -z "$BUCKETS_JSON:-" || "$BUCKETS_JSON" == "null" || $(echo "$BUCKETS_JSON" | jq '.Buckets == null') == "true" ]]; then
+    if [[ -z "${BUCKETS_JSON:-}" || "$BUCKETS_JSON" == "null" || $(echo "$BUCKETS_JSON" | jq '.Buckets == null') == "true" ]]; then
         continue
     fi
 
