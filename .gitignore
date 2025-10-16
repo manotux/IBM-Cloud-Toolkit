@@ -4,3 +4,5 @@ public_buckets.py
 draft
 get_resources.sh
 .DS_Store
+get_code_engine.sh
+get_security_groups.sh
