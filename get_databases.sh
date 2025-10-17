@@ -66,12 +66,22 @@ echo "${SEPARATOR}"
 echo -e "Enumerating IBM Cloud ${ORANGE}${BOLD}Databases${RESET}..."
 echo " "
 
+# Get Cloud Databases (cdb plugin)
 DBS_JSON=$(ibmcloud cdb deployments --json 2>/dev/null) || failure "Failed to retrieve databases."
 
-if [[ -z "${DBS_JSON:-}" || "$DBS_JSON" == "[]" || "$DBS_JSON" == "null" ]]; then
+# Get DB2 instances
+DB2_JSON=$(ibmcloud resource service-instances --service-name dashdb-for-transactions --output json 2>/dev/null) || failure "Failed to retrieve DB2 instances."
+
+# Merge both JSON arrays
+COMBINED_DBS=$(jq -s 'add' <(echo "${DBS_JSON:-[]}") <(echo "${DB2_JSON:-[]}"))
+
+if [[ -z "${COMBINED_DBS:-}" || "$COMBINED_DBS" == "[]" || "$COMBINED_DBS" == "null" ]]; then
     echo "No databases found."
     exit 0
 fi
+
+# Use the combined JSON for processing
+DBS_JSON="$COMBINED_DBS"
 
 : > "$OUTPUT_PATH" || failure "Error while creating the output file: ${BOLD}$OUTPUT_PATH${RESET}"
 
@@ -82,7 +92,7 @@ DB_NAMES=()
 
 while IFS= read -r db_name; do
     DB_NAMES+=("$db_name")
-done < <(echo "$DBS_JSON" | jq -r '.[].name')
+done < <(echo "$DBS_JSON" | jq -r '.[].name')  # Names from both Cloud Databases and DB2
 
 for db_name in "${DB_NAMES[@]}"; do
     DB_INSTANCE_JSON=$(ibmcloud resource service-instance "$db_name" --output json 2>/dev/null)
