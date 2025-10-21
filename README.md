@@ -98,6 +98,20 @@ Enumerates all IBM Cloud Kubernetes/Openshift clusters using the IBM Cloud REST 
 #### - [get_databases.sh](get_databases.sh)
 Enumerates all IBM Cloud Databases. Also generates a separate file for databases with public endpoint enabled.
 
+#### - [get_security_groups.sh](get_security_groups.sh)
+Enumerates all IBM Cloud VPC security groups and identify overly permissive inbound rules.
+
+## Recent Changes
+
+### Version 1.1
+This release introduces the following enhancements:
+
+- **IBM Account Identity Settings**: Retrieves IBM Cloud account identity settings.
+- **MFA Requirement**: Verifies whether MFA is enforced at the account level and detects any user-specific MFA configurations that could potentially bypass the account-wide requirement.
+- **DB2 Database**: Adds support for identifying IBM Cloud DB2 database instances.
+- **Code Engine**: Enumerates IBM Cloud Code Engine projects - serverless applications, associated secrets, environment variables, and ConfigMaps.
+- **Security Groups**: Enumerates security groups and flags overly permissive rules that allow unrestricted inbound connections from the Internet.
+
 ## TODO
 - Support for handling multiple IBM Cloud accounts in batch mode across all enumeration scripts.
 - Implement pagination support in all modules as in get_user_policies.sh

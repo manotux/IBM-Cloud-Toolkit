@@ -74,6 +74,13 @@ require_ibmcloud_is() {
     fi
 }
 
+# Check if IBM Cloud Classic Infrastructure plugin ("sl") is installed
+require_ibmcloud_sl() {
+    if ! ibmcloud plugin list | grep -qw "sl"; then
+        failure "IBM Cloud Classic Infrastructure plugin ('sl') is not installed. Please run: ibmcloud plugin install sl"
+    fi
+}
+
 # Check if IBM Cloud cloud-databases plugin ("cdb") is installed
 require_ibmcloud_cdb() {
     if ! ibmcloud plugin list | grep -qw "cloud-databases"; then
