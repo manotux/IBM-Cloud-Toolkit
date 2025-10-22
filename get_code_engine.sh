@@ -128,10 +128,10 @@ else
         fi
 
         # Retrieve ConfigMaps
-        configmaps_json=$(curl -s -X GET "https://api.${region_id}.codeengine.cloud.ibm.com/v2/projects/${project_id}/config-maps" \
+        configmaps_json=$(curl -s -X GET "https://api.${region_id}.codeengine.cloud.ibm.com/v2/projects/${project_id}/config_maps" \
             -H "Authorization: Bearer ${IBMCLOUD_ACCESS_TOKEN}")
         if [[ -n "$configmaps_json" && "$configmaps_json" != "{}" ]]; then
-            configmaps_array=$(echo "$configmaps_json" | jq '.config-maps')
+            configmaps_array=$(echo "$configmaps_json" | jq '.config_maps')
             if [[ $(echo "$configmaps_array" | jq 'length') -gt 0 ]]; then
                 ALL_CONFIGMAPS_JSON=$(jq -s 'add' <(echo "$ALL_CONFIGMAPS_JSON") <(echo "$configmaps_array"))
             fi
