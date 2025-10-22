@@ -95,7 +95,7 @@ while IFS= read -r db_name; do
 done < <(echo "$DBS_JSON" | jq -r '.[].name')  # Names from both Cloud Databases and DB2
 
 # unset resource group to check db_name in all if previously set manually
-ibmcloud target --unset-resource-group
+ibmcloud target --unset-resource-group -q &>/dev/null
 
 for db_name in "${DB_NAMES[@]}"; do
     DB_INSTANCE_JSON=$(ibmcloud resource service-instance "$db_name" --output json 2>/dev/null)
