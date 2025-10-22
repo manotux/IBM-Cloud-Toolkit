@@ -70,7 +70,7 @@ echo " "
 DBS_JSON=$(ibmcloud cdb deployments --json 2>/dev/null) || failure "Failed to retrieve databases."
 
 # Get DB2 instances
-DB2_JSON=$(ibmcloud resource service-instances --service-name dashdb-for-transactions --output json 2>/dev/null) || failure "Failed to retrieve DB2 instances."
+DB2_JSON=$(ibmcloud resource service-instances --service-name dashdb-for-transactions --all-resource-groups --output json 2>/dev/null) || failure "Failed to retrieve DB2 instances."
 
 # Merge both JSON arrays
 COMBINED_DBS=$(jq -s 'add' <(echo "${DBS_JSON:-[]}") <(echo "${DB2_JSON:-[]}"))
@@ -93,6 +93,9 @@ DB_NAMES=()
 while IFS= read -r db_name; do
     DB_NAMES+=("$db_name")
 done < <(echo "$DBS_JSON" | jq -r '.[].name')  # Names from both Cloud Databases and DB2
+
+# unset resource group to check db_name in all if previously set manually
+ibmcloud target --unset-resource-group
 
 for db_name in "${DB_NAMES[@]}"; do
     DB_INSTANCE_JSON=$(ibmcloud resource service-instance "$db_name" --output json 2>/dev/null)

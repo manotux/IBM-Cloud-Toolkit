@@ -63,7 +63,7 @@ echo -e "Enumerating IBM Cloud ${ORANGE}${BOLD}Object Storage buckets${RESET}...
 echo " "
 
 # Get all COS service instances (no region iteration needed)
-INSTANCES_JSON=$(ibmcloud resource service-instances --service-name cloud-object-storage --output json)
+INSTANCES_JSON=$(ibmcloud resource service-instances --service-name cloud-object-storage --all-resource-groups --output json)
 if [[ -z "${INSTANCES_JSON:-}" || "$INSTANCES_JSON" == "[]" || "$INSTANCES_JSON" == "null" ]]; then
     failure "Failed to retrieve Cloud Object Storage service instances."
 fi
