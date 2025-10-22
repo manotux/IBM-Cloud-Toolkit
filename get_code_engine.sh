@@ -106,43 +106,61 @@ else
 
         apps_json=$(curl -s -X GET "https://api.${region_id}.codeengine.cloud.ibm.com/v2/projects/${project_id}/apps" -H "Authorization: Bearer ${IBMCLOUD_ACCESS_TOKEN}")
         if [[ -n "$apps_json" && "$apps_json" != "{}" ]]; then
-            # Accumulate apps list
             apps_array=$(echo "$apps_json" | jq '.apps')
             ALL_APPS_JSON=$(jq -s 'add' <(echo "$ALL_APPS_JSON") <(echo "$apps_array"))
 
             # Extract env vars
-            envvars=$(echo "$apps_json" | jq --arg pname "$project_name" '[.apps[] | {project: $pname, name: .name, run_env_variables: .run_env_variables}]')
+            envvars=$(echo "$apps_json" | jq --arg pname "$project_name" '[.apps[] | {project: $pname, Application: .name, run_env_variables: .run_env_variables}]')
             ALL_ENVVARS_JSON=$(jq -s 'add' <(echo "$ALL_ENVVARS_JSON") <(echo "$envvars"))
 
             # Public endpoints
-            public_apps=$(echo "$apps_json" | jq --arg pname "$project_name" '[.apps[] | select(.managed_domain_mappings=="local_public") | {project: $pname, name: .name, managed_domain_mappings: .managed_domain_mappings}]')
+            public_apps=$(echo "$apps_json" | jq --arg pname "$project_name" '[.apps[] | select(.managed_domain_mappings=="local_public") | {project: $pname, Application: .name, managed_domain_mappings: .managed_domain_mappings, endpoint: .endpoint}]')
             if [[ $(echo "$public_apps" | jq 'length') -gt 0 ]]; then
                 ALL_PUBLIC_APPS_JSON=$(jq -s 'add' <(echo "$ALL_PUBLIC_APPS_JSON") <(echo "$public_apps"))
             fi
         fi
+
+        # Retrieve Functions
         functions_json=$(curl -s -X GET "https://api.${region_id}.codeengine.cloud.ibm.com/v2/projects/${project_id}/functions" -H "Authorization: Bearer ${IBMCLOUD_ACCESS_TOKEN}")
         if [[ -n "$functions_json" && "$functions_json" != "{}" ]]; then
-            # Accumulate functions list
-            functions_array=$(echo "$functions_json" | jq '.functions')
-            ALL_FUNCTIONS_JSON=$(jq -s 'add' <(echo "$ALL_FUNCTIONS_JSON") <(echo "$functions_array"))
+            functions_array=$(echo "$functions_json" | jq --arg pname "$project_name" '[{project: $pname, functions: .functions}]')
+            if [[ $(echo "$functions_array[0].functions" | jq 'length') -gt 0 ]]; then
+                ALL_FUNCTIONS_JSON=$(jq -s 'add' <(echo "$ALL_FUNCTIONS_JSON") <(echo "$functions_array"))
+            fi
         fi
 
         # Retrieve ConfigMaps
-        configmaps_json=$(curl -s -X GET "https://api.${region_id}.codeengine.cloud.ibm.com/v2/projects/${project_id}/config_maps" \
-            -H "Authorization: Bearer ${IBMCLOUD_ACCESS_TOKEN}")
+        configmaps_json=$(curl -s -X GET "https://api.${region_id}.codeengine.cloud.ibm.com/v2/projects/${project_id}/config_maps" -H "Authorization: Bearer ${IBMCLOUD_ACCESS_TOKEN}")
         if [[ -n "$configmaps_json" && "$configmaps_json" != "{}" ]]; then
-            configmaps_array=$(echo "$configmaps_json" | jq '.config_maps')
+            configmaps_array=$(echo "$configmaps_json" | jq --arg pname "$project_name" '[.config_maps[] | {project: $pname, name: .name, data: .data}]')
             if [[ $(echo "$configmaps_array" | jq 'length') -gt 0 ]]; then
                 ALL_CONFIGMAPS_JSON=$(jq -s 'add' <(echo "$ALL_CONFIGMAPS_JSON") <(echo "$configmaps_array"))
             fi
         fi
 
         # Retrieve Secrets
-        secrets_json=$(curl -s -X GET "https://api.${region_id}.codeengine.cloud.ibm.com/v2/projects/${project_id}/secrets" \
-            -H "Authorization: Bearer ${IBMCLOUD_ACCESS_TOKEN}")
+        secrets_json=$(curl -s -X GET "https://api.${region_id}.codeengine.cloud.ibm.com/v2/projects/${project_id}/secrets" -H "Authorization: Bearer ${IBMCLOUD_ACCESS_TOKEN}")
         if [[ -n "$secrets_json" && "$secrets_json" != "{}" ]]; then
-            secrets_array=$(echo "$secrets_json" | jq '.secrets')
+            secrets_array=$(echo "$secrets_json" | jq --arg pname "$project_name" '[.secrets[] | {project: $pname, name: .name, data: .data}]')
             if [[ $(echo "$secrets_array" | jq 'length') -gt 0 ]]; then
+                ALL_SECRETS_JSON=$(jq -s 'add' <(echo "$ALL_SECRETS_JSON") <(echo "$secrets_array"))
+            fi
+        fi
+
+        # Retrieve ConfigMaps
+        configmaps_json=$(curl -s -X GET "https://api.${region_id}.codeengine.cloud.ibm.com/v2/projects/${project_id}/config_maps" -H "Authorization: Bearer ${IBMCLOUD_ACCESS_TOKEN}")
+        if [[ -n "$configmaps_json" && "$configmaps_json" != "{}" ]]; then
+            configmaps_array=$(echo "$configmaps_json" | jq --arg pname "$project_name" '[{project: $pname, configmaps: .config_maps}]')
+            if [[ $(echo "$configmaps_array[0].configmaps" | jq 'length') -gt 0 ]]; then
+                ALL_CONFIGMAPS_JSON=$(jq -s 'add' <(echo "$ALL_CONFIGMAPS_JSON") <(echo "$configmaps_array"))
+            fi
+        fi
+
+        # Retrieve Secrets
+        secrets_json=$(curl -s -X GET "https://api.${region_id}.codeengine.cloud.ibm.com/v2/projects/${project_id}/secrets" -H "Authorization: Bearer ${IBMCLOUD_ACCESS_TOKEN}")
+        if [[ -n "$secrets_json" && "$secrets_json" != "{}" ]]; then
+            secrets_array=$(echo "$secrets_json" | jq --arg pname "$project_name" '[{project: $pname, secrets: .secrets}]')
+            if [[ $(echo "$secrets_array[0].secrets" | jq 'length') -gt 0 ]]; then
                 ALL_SECRETS_JSON=$(jq -s 'add' <(echo "$ALL_SECRETS_JSON") <(echo "$secrets_array"))
             fi
         fi
