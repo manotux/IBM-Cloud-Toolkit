@@ -122,46 +122,36 @@ else
 
         # Retrieve Functions
         functions_json=$(curl -s -X GET "https://api.${region_id}.codeengine.cloud.ibm.com/v2/projects/${project_id}/functions" -H "Authorization: Bearer ${IBMCLOUD_ACCESS_TOKEN}")
+
         if [[ -n "$functions_json" && "$functions_json" != "{}" ]]; then
-            functions_array=$(echo "$functions_json" | jq --arg pname "$project_name" '[{project: $pname, functions: .functions}]')
-            if [[ $(echo "$functions_array[0].functions" | jq 'length') -gt 0 ]]; then
-                ALL_FUNCTIONS_JSON=$(jq -s 'add' <(echo "$ALL_FUNCTIONS_JSON") <(echo "$functions_array"))
-            fi
-        fi
+            functions_obj=$(echo "$functions_json" | jq --arg pname "$project_name" '{project: $pname, functions: (.functions // [])}')
+            functions_count=$(echo "$functions_obj" | jq '.functions | length')
 
-        # Retrieve ConfigMaps
-        configmaps_json=$(curl -s -X GET "https://api.${region_id}.codeengine.cloud.ibm.com/v2/projects/${project_id}/config_maps" -H "Authorization: Bearer ${IBMCLOUD_ACCESS_TOKEN}")
-        if [[ -n "$configmaps_json" && "$configmaps_json" != "{}" ]]; then
-            configmaps_array=$(echo "$configmaps_json" | jq --arg pname "$project_name" '[.config_maps[] | {project: $pname, name: .name, data: .data}]')
-            if [[ $(echo "$configmaps_array" | jq 'length') -gt 0 ]]; then
-                ALL_CONFIGMAPS_JSON=$(jq -s 'add' <(echo "$ALL_CONFIGMAPS_JSON") <(echo "$configmaps_array"))
+            if [[ "$functions_count" -gt 0 ]]; then
+                ALL_FUNCTIONS_JSON=$(jq -s 'add' <(echo "$ALL_FUNCTIONS_JSON") <(echo "[$functions_obj]"))
             fi
         fi
 
         # Retrieve Secrets
         secrets_json=$(curl -s -X GET "https://api.${region_id}.codeengine.cloud.ibm.com/v2/projects/${project_id}/secrets" -H "Authorization: Bearer ${IBMCLOUD_ACCESS_TOKEN}")
         if [[ -n "$secrets_json" && "$secrets_json" != "{}" ]]; then
-            secrets_array=$(echo "$secrets_json" | jq --arg pname "$project_name" '[.secrets[] | {project: $pname, name: .name, data: .data}]')
-            if [[ $(echo "$secrets_array" | jq 'length') -gt 0 ]]; then
-                ALL_SECRETS_JSON=$(jq -s 'add' <(echo "$ALL_SECRETS_JSON") <(echo "$secrets_array"))
+            secrets_obj=$(echo "$secrets_json" | jq --arg pname "$project_name" '{project: $pname, secrets: (.secrets // [])}')
+            secrets_count=$(echo "$secrets_obj" | jq '.secrets | length')
+
+            if [[ "$secrets_count" -gt 0 ]]; then
+                ALL_SECRETS_JSON=$(jq -s 'add' <(echo "$ALL_SECRETS_JSON") <(echo "[$secrets_obj]"))
             fi
         fi
 
         # Retrieve ConfigMaps
         configmaps_json=$(curl -s -X GET "https://api.${region_id}.codeengine.cloud.ibm.com/v2/projects/${project_id}/config_maps" -H "Authorization: Bearer ${IBMCLOUD_ACCESS_TOKEN}")
-        if [[ -n "$configmaps_json" && "$configmaps_json" != "{}" ]]; then
-            configmaps_array=$(echo "$configmaps_json" | jq --arg pname "$project_name" '[{project: $pname, configmaps: .config_maps}]')
-            if [[ $(echo "$configmaps_array[0].configmaps" | jq 'length') -gt 0 ]]; then
-                ALL_CONFIGMAPS_JSON=$(jq -s 'add' <(echo "$ALL_CONFIGMAPS_JSON") <(echo "$configmaps_array"))
-            fi
-        fi
 
-        # Retrieve Secrets
-        secrets_json=$(curl -s -X GET "https://api.${region_id}.codeengine.cloud.ibm.com/v2/projects/${project_id}/secrets" -H "Authorization: Bearer ${IBMCLOUD_ACCESS_TOKEN}")
-        if [[ -n "$secrets_json" && "$secrets_json" != "{}" ]]; then
-            secrets_array=$(echo "$secrets_json" | jq --arg pname "$project_name" '[{project: $pname, secrets: .secrets}]')
-            if [[ $(echo "$secrets_array[0].secrets" | jq 'length') -gt 0 ]]; then
-                ALL_SECRETS_JSON=$(jq -s 'add' <(echo "$ALL_SECRETS_JSON") <(echo "$secrets_array"))
+        if [[ -n "$configmaps_json" && "$configmaps_json" != "{}" ]]; then
+            configmaps_obj=$(echo "$configmaps_json" | jq --arg pname "$project_name" '{project: $pname, configmaps: (.config_maps // [])}')
+            configmaps_count=$(echo "$configmaps_obj" | jq '.configmaps | length')
+
+            if [[ "$configmaps_count" -gt 0 ]]; then
+                ALL_CONFIGMAPS_JSON=$(jq -s 'add' <(echo "$ALL_CONFIGMAPS_JSON") <(echo "[$configmaps_obj]"))
             fi
         fi
 
