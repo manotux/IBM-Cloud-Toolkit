@@ -107,7 +107,7 @@ fi
 
 "$srcdir/get_buckets.sh" -o "$OUTPUT_DIR"
 
-"$srcdir/get_buckets_files.sh" -o "$OUTPUT_DIR"
+# "$srcdir/get_buckets_files.sh" -o "$OUTPUT_DIR"
 
 "$srcdir/get_security_groups.sh" -o "$OUTPUT_DIR"
 

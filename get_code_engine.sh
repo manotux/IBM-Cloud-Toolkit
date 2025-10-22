@@ -222,4 +222,4 @@ fi
 
 echo -e "Review Env Vars and ConfigMaps for secrets using tools like TruffleHog/detect-secrets or manually."
 
-ibmcloud target --unset-resource-group
+ibmcloud target --unset-resource-group -q &>/dev/null

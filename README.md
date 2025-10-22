@@ -87,7 +87,7 @@ Enumerates all VSIs (IBM Cloud VMs) in each enabled IBM Cloud region. Also gener
 Enumerates all IBM Cloud Object Storage buckets in the account and outputs them as a JSON array.
 
 #### - [get_buckets_files.sh](get_buckets_files.sh)
-Lists all files in existing IBM Cloud Object Storage buckets. For each bucket, outputs a section with the bucket name and a list of files it contains.
+Lists all files in existing IBM Cloud Object Storage buckets. For each bucket, outputs a section with the bucket name and a list of files it contains. **Note:** This script is now disabled for automatic execution in `ibm_cloud_enum.sh` and must be run manually. This is due to potentially long execution times for accounts with thousands of files in COS buckets.
 
 #### - [get_schematics.sh](get_schematics.sh)
 Enumerates all IBM Cloud Schematics workspaces in each enabled region and outputs their configuration as a JSON array. The output can be reviewed manually or with tools like [TruffleHog](https://github.com/trufflesecurity/trufflehog) or [detect-secrets](https://github.com/Yelp/detect-secrets) to identify secrets (such as API keys, SSH keys, or passwords) stored in variables and not flagged as sensitive.
@@ -114,6 +114,7 @@ This release introduces the following enhancements:
 - **DB2 Database**: Adds support for identifying IBM Cloud DB2 database instances.
 - **Code Engine**: Enumerates IBM Cloud Code Engine projects - serverless applications, functions, secrets, ConfigMaps, environment variables, and public endpoints.
 - **Security Groups**: Enumerates security groups and flags overly permissive rules that allow unrestricted inbound connections from the Internet.
+- **Execution Change for ibm_cloud_enum.sh**: `get_buckets_files.sh` is now disabled in `ibm_cloud_enum.sh` and must be executed manually due to potentially very long execution times for accounts with thousands of files in COS buckets.
 
 ## TODO
 - Support for handling multiple IBM Cloud accounts in batch mode across all enumeration scripts.
