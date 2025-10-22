@@ -58,9 +58,9 @@ if [ ! -d "$OUTPUT_DIR" ]; then
 fi
 
 PROJECTS_OUTPUT_PATH="${OUTPUT_DIR}/code_engine_projects.json"
-APPS_OUTPUT_PATH="${OUTPUT_DIR}/code_engine_applications.json"
-ENVVARS_OUTPUT_PATH="${OUTPUT_DIR}/code_engine_envvars.json"
-PUBLIC_APPS_OUTPUT_PATH="${OUTPUT_DIR}/code_engine_public_apps.json"
+APPS_OUTPUT_PATH="${OUTPUT_DIR}/code_engine_apps.json"
+ENVVARS_OUTPUT_PATH="${OUTPUT_DIR}/code_engine_apps_envvars.json"
+PUBLIC_APPS_OUTPUT_PATH="${OUTPUT_DIR}/code_engine_apps_public_endpoints.json"
 FUNCS_OUTPUT_PATH="${OUTPUT_DIR}/code_engine_functions.json"
 CONFIGMAPS_OUTPUT_PATH="${OUTPUT_DIR}/code_engine_configmaps.json"
 SECRETS_OUTPUT_PATH="${OUTPUT_DIR}/code_engine_secrets.json"
@@ -88,7 +88,7 @@ if [[ -z "${IBMCLOUD_ACCESS_TOKEN:-}" || "$IBMCLOUD_ACCESS_TOKEN" == "null" ]]; 
 fi
 
 # List all projects across all regions/resource groups
-PROJECTS=$(ibmcloud ce project list --all --output json 2>/dev/null) || { failure "Failed to retrieve Code Engine projects" }
+PROJECTS=$(ibmcloud ce project list --all --output json 2>/dev/null) || failure "Failed to retrieve Code Engine projects"
 if [[ -z "${PROJECTS:-}" || "$PROJECTS" == "[]" ]]; then
     echo "No Code Engine projects found"
     exit 0
@@ -97,16 +97,18 @@ else
     ALL_APPS_JSON="[]"
     ALL_ENVVARS_JSON="[]"
     ALL_PUBLIC_APPS_JSON="[]"
+    ALL_FUNCTIONS_JSON="[]"
 
-    for row in $(echo "$PROJECTS" | jq -c '.[]'); do
+    while IFS= read -r row; do
         project_name=$(echo "$row" | jq -r '.name')
         region_id=$(echo "$row" | jq -r '.region_id')
         project_id=$(echo "$row" | jq -r '.guid')
 
         apps_json=$(curl -s -X GET "https://api.${region_id}.codeengine.cloud.ibm.com/v2/projects/${project_id}/apps" -H "Authorization: Bearer ${IBMCLOUD_ACCESS_TOKEN}")
-        if [[ -n "$apps_json" && "$apps_json" != "[]" ]]; then
+        if [[ -n "$apps_json" && "$apps_json" != "{}" ]]; then
             # Accumulate apps list
-            ALL_APPS_JSON=$(jq -s 'add' <(echo "$ALL_APPS_JSON") <(echo "$apps_json"))
+            apps_array=$(echo "$apps_json" | jq '.apps')
+            ALL_APPS_JSON=$(jq -s 'add' <(echo "$ALL_APPS_JSON") <(echo "$apps_array"))
 
             # Extract env vars
             envvars=$(echo "$apps_json" | jq --arg pname "$project_name" '[.apps[] | {project: $pname, name: .name, run_env_variables: .run_env_variables}]')
@@ -118,21 +120,45 @@ else
                 ALL_PUBLIC_APPS_JSON=$(jq -s 'add' <(echo "$ALL_PUBLIC_APPS_JSON") <(echo "$public_apps"))
             fi
         fi
+        functions_json=$(curl -s -X GET "https://api.${region_id}.codeengine.cloud.ibm.com/v2/projects/${project_id}/functions" -H "Authorization: Bearer ${IBMCLOUD_ACCESS_TOKEN}")
+        if [[ -n "$functions_json" && "$functions_json" != "{}" ]]; then
+            # Accumulate functions list
+            functions_array=$(echo "$functions_json" | jq '.functions')
+            ALL_FUNCTIONS_JSON=$(jq -s 'add' <(echo "$ALL_FUNCTIONS_JSON") <(echo "$functions_array"))
+        fi
 
-    done
+        # Retrieve ConfigMaps
+        configmaps_json=$(curl -s -X GET "https://api.${region_id}.codeengine.cloud.ibm.com/v2/projects/${project_id}/config-maps" \
+            -H "Authorization: Bearer ${IBMCLOUD_ACCESS_TOKEN}")
+        if [[ -n "$configmaps_json" && "$configmaps_json" != "{}" ]]; then
+            configmaps_array=$(echo "$configmaps_json" | jq '.config-maps')
+            if [[ $(echo "$configmaps_array" | jq 'length') -gt 0 ]]; then
+                ALL_CONFIGMAPS_JSON=$(jq -s 'add' <(echo "$ALL_CONFIGMAPS_JSON") <(echo "$configmaps_array"))
+            fi
+        fi
 
+        # Retrieve Secrets
+        secrets_json=$(curl -s -X GET "https://api.${region_id}.codeengine.cloud.ibm.com/v2/projects/${project_id}/secrets" \
+            -H "Authorization: Bearer ${IBMCLOUD_ACCESS_TOKEN}")
+        if [[ -n "$secrets_json" && "$secrets_json" != "{}" ]]; then
+            secrets_array=$(echo "$secrets_json" | jq '.secrets')
+            if [[ $(echo "$secrets_array" | jq 'length') -gt 0 ]]; then
+                ALL_SECRETS_JSON=$(jq -s 'add' <(echo "$ALL_SECRETS_JSON") <(echo "$secrets_array"))
+            fi
+        fi
 
-    # echo "$ALL_APPS_JSON" | jq '.' > "$APPS_OUTPUT_PATH"
-    # echo "$ALL_ENVVARS_JSON" | jq '.' > "${OUTPUT_DIR}/code_engine_envvars.json"
-    # echo "$ALL_PUBLIC_APPS_JSON" | jq '.' > "${OUTPUT_DIR}/code_engine_public_apps.json"
+    done < <(echo "$PROJECTS" | jq -c '.[]')
+
 fi
 
+# Save Code Engine Projects
 if [[ $(echo "$PROJECTS" | jq 'length') -gt 0 ]]; then
     : > "$PROJECTS_OUTPUT_PATH" || failure "Error while creating the output file: ${BOLD}$PROJECTS_OUTPUT_PATH${RESET}"
     echo "$PROJECTS" | jq '.' > "$PROJECTS_OUTPUT_PATH"
     echo -e "All Code Engine Projects saved to: ${BOLD}${PROJECTS_OUTPUT_PATH}${RESET}"
 fi
 
+# Save Code Engine Applications
 if [[ $(echo "$ALL_APPS_JSON" | jq 'length') -gt 0 ]]; then
     : > "$APPS_OUTPUT_PATH" || failure "Error while creating the output file: ${BOLD}$APPS_OUTPUT_PATH${RESET}"
     echo "$ALL_APPS_JSON" | jq '.' > "$APPS_OUTPUT_PATH"
@@ -141,6 +167,7 @@ else
     echo "No Code Engine Applications found."
 fi
 
+# Save Code Engine Apps Env Vars
 if [[ $(echo "$ALL_ENVVARS_JSON" | jq 'length') -gt 0 ]]; then
     : > "$ENVVARS_OUTPUT_PATH" || failure "Error while creating the output file: ${BOLD}$ENVVARS_OUTPUT_PATH${RESET}"
     echo "$ALL_ENVVARS_JSON" | jq '.' > "$ENVVARS_OUTPUT_PATH"
@@ -149,6 +176,7 @@ else
     echo "No Code Engine Environment Variables found."
 fi
 
+# Save Code Engine Apps Public Endpoints
 if [[ $(echo "$ALL_PUBLIC_APPS_JSON" | jq 'length') -gt 0 ]]; then
     : > "$PUBLIC_APPS_OUTPUT_PATH" || failure "Error while creating the output file: ${BOLD}$PUBLIC_APPS_OUTPUT_PATH${RESET}"
     echo "$ALL_PUBLIC_APPS_JSON" | jq '.' > "$PUBLIC_APPS_OUTPUT_PATH"
@@ -156,3 +184,32 @@ if [[ $(echo "$ALL_PUBLIC_APPS_JSON" | jq 'length') -gt 0 ]]; then
 else
     echo "No Code Engine Applications with public endpoint enabled."
 fi
+
+# Save Code Engine Functions
+if [[ $(echo "$ALL_FUNCTIONS_JSON" | jq 'length') -gt 0 ]]; then
+    : > "$FUNCS_OUTPUT_PATH" || failure "Error while creating the output file: ${BOLD}$FUNCS_OUTPUT_PATH${RESET}"
+    echo "$ALL_FUNCTIONS_JSON" | jq '.' > "$FUNCS_OUTPUT_PATH"
+    echo -e "Code Engine Functions saved to: ${BOLD}${FUNCS_OUTPUT_PATH}${RESET}"
+else
+    echo "No Code Engine Functions found."
+fi
+
+# Save Code Engine ConfigMaps
+if [[ $(echo "$ALL_CONFIGMAPS_JSON" | jq 'length') -gt 0 ]]; then
+    : > "$CONFIGMAPS_OUTPUT_PATH" || failure "Error while creating the output file: ${BOLD}$CONFIGMAPS_OUTPUT_PATH${RESET}"
+    echo "$ALL_CONFIGMAPS_JSON" | jq '.' > "$CONFIGMAPS_OUTPUT_PATH"
+    echo -e "Code Engine ConfigMaps saved to: ${BOLD}${CONFIGMAPS_OUTPUT_PATH}${RESET}"
+else
+    echo "No Code Engine ConfigMaps found."
+fi
+
+# Save Code Engine Secrets
+if [[ $(echo "$ALL_SECRETS_JSON" | jq 'length') -gt 0 ]]; then
+    : > "$SECRETS_OUTPUT_PATH" || failure "Error while creating the output file: ${BOLD}$SECRETS_OUTPUT_PATH${RESET}"
+    echo "$ALL_SECRETS_JSON" | jq '.' > "$SECRETS_OUTPUT_PATH"
+    echo -e "Code Engine Secrets saved to: ${BOLD}${SECRETS_OUTPUT_PATH}${RESET}"
+else
+    echo "No Code Engine Secrets found."
+fi
+
+echo -e "Review Env Vars and ConfigMaps for secrets using tools like TruffleHog/detect-secrets or manually."
