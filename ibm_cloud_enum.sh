@@ -63,6 +63,8 @@ require_ibmcloud_is
 require_ibmcloud_schematics
 require_ibmcloud_cos
 require_ibmcloud_login
+require_ibmcloud_sl
+require_ibmcloud_ce
 
 # Dynamically retrieve and print IBM Cloud account info
 ACCOUNT_JSON=$(ibmcloud account show --output json 2>/dev/null)
@@ -106,6 +108,10 @@ fi
 "$srcdir/get_buckets.sh" -o "$OUTPUT_DIR"
 
 "$srcdir/get_buckets_files.sh" -o "$OUTPUT_DIR"
+
+"$srcdir/get_security_groups.sh" -o "$OUTPUT_DIR"
+
+"$srcdir/get_code_engine.sh" -o "$OUTPUT_DIR"
 
 echo " "
 echo "${SEPARATOR}"

@@ -101,6 +101,9 @@ Enumerates all IBM Cloud Databases. Also generates a separate file for databases
 #### - [get_security_groups.sh](get_security_groups.sh)
 Enumerates all IBM Cloud VPC security groups and identify overly permissive inbound rules.
 
+#### - [get_code_engine.sh](get_code_engine.sh)
+Enumerates all IBM Cloud Code Engine projects using the IBM Cloud REST API. For each project, it retrieves Applications, including environment variables and public endpoint status, Functions, ConfigMaps, and Secrets
+
 ## Recent Changes
 
 ### Version 1.1
@@ -109,7 +112,7 @@ This release introduces the following enhancements:
 - **IBM Account Identity Settings**: Retrieves IBM Cloud account identity settings.
 - **MFA Requirement**: Verifies whether MFA is enforced at the account level and detects any user-specific MFA configurations that could potentially bypass the account-wide requirement.
 - **DB2 Database**: Adds support for identifying IBM Cloud DB2 database instances.
-- **Code Engine**: Enumerates IBM Cloud Code Engine projects - serverless applications, associated secrets, environment variables, and ConfigMaps.
+- **Code Engine**: Enumerates IBM Cloud Code Engine projects - serverless applications, associated secrets and ConfigMaps, environment variables, and public endpoints.
 - **Security Groups**: Enumerates security groups and flags overly permissive rules that allow unrestricted inbound connections from the Internet.
 
 ## TODO

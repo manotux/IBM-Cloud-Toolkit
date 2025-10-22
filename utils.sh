@@ -101,6 +101,13 @@ require_ibmcloud_cos() {
     fi
 }
 
+# Check if IBM Cloud Code Engine plugin ("ce") is installed
+require_ibmcloud_ce() {
+    if ! ibmcloud plugin list | grep -qw "code-engine"; then
+        failure "IBM Cloud Code Engine plugin ('ce') is not installed. Please run: ibmcloud plugin install code-engine"
+    fi
+}
+
 # Failure function
 failure() {
     echo -e "${BOLD}${BRIGHT_RED}FAILED: ${RESET}$*"
