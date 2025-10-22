@@ -110,11 +110,11 @@ else
             ALL_APPS_JSON=$(jq -s 'add' <(echo "$ALL_APPS_JSON") <(echo "$apps_array"))
 
             # Extract env vars
-            envvars=$(echo "$apps_json" | jq --arg pname "$project_name" '[.apps[] | {project: $pname, Application: .name, run_env_variables: .run_env_variables}]')
+            envvars=$(echo "$apps_json" | jq --arg pname "$project_name" '[.apps[] | {project: $pname, application: .name, run_env_variables: .run_env_variables}]')
             ALL_ENVVARS_JSON=$(jq -s 'add' <(echo "$ALL_ENVVARS_JSON") <(echo "$envvars"))
 
             # Public endpoints
-            public_apps=$(echo "$apps_json" | jq --arg pname "$project_name" '[.apps[] | select(.managed_domain_mappings=="local_public") | {project: $pname, Application: .name, managed_domain_mappings: .managed_domain_mappings, endpoint: .endpoint}]')
+            public_apps=$(echo "$apps_json" | jq --arg pname "$project_name" '[.apps[] | select(.managed_domain_mappings=="local_public") | {project: $pname, application: .name, managed_domain_mappings: .managed_domain_mappings, endpoint: .endpoint}]')
             if [[ $(echo "$public_apps" | jq 'length') -gt 0 ]]; then
                 ALL_PUBLIC_APPS_JSON=$(jq -s 'add' <(echo "$ALL_PUBLIC_APPS_JSON") <(echo "$public_apps"))
             fi
