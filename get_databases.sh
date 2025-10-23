@@ -88,23 +88,23 @@ DBS_JSON="$COMBINED_DBS"
 # Enumerate databases with public endpoint enabled
 
 PUBLIC_ENDPOINT_DBS="[]"
-DB_NAMES=()
+DB_GUIDS=()
 
-while IFS= read -r db_name; do
-    DB_NAMES+=("$db_name")
-done < <(echo "$DBS_JSON" | jq -r '.[].name')  # Names from both Cloud Databases and DB2
+while IFS= read -r db_guid; do
+    DB_GUIDS+=("$db_guid")
+done < <(echo "$DBS_JSON" | jq -r '.[].guid')  # DB guid from both Cloud Databases and DB2
 
-# unset resource group to check db_name in all if previously set manually
+# unset resource group to check db_guid in all if previously set manually
 ibmcloud target --unset-resource-group -q &>/dev/null
 
-for db_name in "${DB_NAMES[@]}"; do
-    DB_INSTANCE_JSON=$(ibmcloud resource service-instance "$db_name" --output json 2>/dev/null)
+for db_guid in "${DB_GUIDS[@]}"; do
+    DB_INSTANCE_JSON=$(ibmcloud resource service-instance "$db_guid" --output json 2>/dev/null)
     if [[ -z "${DB_INSTANCE_JSON:-}" || "$DB_INSTANCE_JSON" == "[]" ]]; then
         continue
     fi
     ENDPOINT_TYPE=$(echo "$DB_INSTANCE_JSON" | jq -r '.[0].parameters["service-endpoints"] // "private"')
     if [[ "$ENDPOINT_TYPE" != "private" ]]; then
-        PUBLIC_ENDPOINT_DBS=$(jq -s 'add' <(echo "$PUBLIC_ENDPOINT_DBS") <(echo "$DB_INSTANCE_JSON" | jq '[.[] | {name, crn, service_endpoints: .parameters["service-endpoints"]}]'))
+        PUBLIC_ENDPOINT_DBS=$(jq -s 'add' <(echo "$PUBLIC_ENDPOINT_DBS") <(echo "$DB_INSTANCE_JSON" | jq '[.[] | {name, guid, crn, service_endpoints: .parameters["service-endpoints"]}]'))
     fi
 done
 
