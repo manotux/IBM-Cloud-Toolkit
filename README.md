@@ -119,6 +119,8 @@ This release introduces the following enhancements:
 ## TODO
 - Support for handling multiple IBM Cloud accounts in batch mode across all enumeration scripts.
 - Implement pagination support in all modules as in get_user_policies.sh
+- Support Cloudant DBs
+- Enumerate Load Balancer resources
 
 ## Author
 Heber Blain Gonçalves

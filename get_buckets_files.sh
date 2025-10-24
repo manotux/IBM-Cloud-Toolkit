@@ -90,7 +90,8 @@ while IFS= read -r instance; do
         echo "## Bucket ${INSTANCE_NAME}/${BUCKET_NAME} ##" >> "$OUTPUT_PATH"
 
         # List files in the bucket (first 1000 objects)
-        FILES_JSON=$(ibmcloud cos list-objects-v2 --bucket "$BUCKET_NAME" --region $BUCKET_REGION --output json 2>/dev/null)
+        FILES_JSON=$(ibmcloud cos list-objects-v2 --bucket "$BUCKET_NAME" --region $BUCKET_REGION --output json 2>/dev/null) | warning "Could not list files in bucket \"$BUCKET_NAME\". It may contain too many objects."
+
         # If no files exist or list-objects-v2 does not return anything
         if [[ -z "${FILES_JSON:-}" || "$FILES_JSON" == "null" || $(echo "$FILES_JSON" | jq '.KeyCount == 0') == "true" ]]; then
             echo "(No files found)" >> "$OUTPUT_PATH"
