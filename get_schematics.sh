@@ -99,4 +99,5 @@ fi
 : > "$OUTPUT_PATH" || failure "Error while creating the output file: ${BOLD}$OUTPUT_PATH${RESET}"
 echo "$ALL_WORKSPACES_JSON" | jq '.' > "$OUTPUT_PATH"
 echo -e "All Schematics workspaces saved to: ${BOLD}${OUTPUT_PATH}${RESET}"
+echo ""
 echo -e "Review this file for secrets in variables using tools like TruffleHog/detect-secrets or manually."

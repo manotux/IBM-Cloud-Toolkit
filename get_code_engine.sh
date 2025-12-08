@@ -83,7 +83,6 @@ if [[ -z "${IBMCLOUD_ACCESS_TOKEN:-}" || "$IBMCLOUD_ACCESS_TOKEN" == "null" ]]; 
 fi
 
 # Get all resource groups
-echo "Retrieving all resource groups..."
 RESOURCE_GROUPS=$(ibmcloud resource groups --output json 2>/dev/null) || failure "Failed to retrieve resource groups"
 if [[ -z "${RESOURCE_GROUPS:-}" || "$RESOURCE_GROUPS" == "[]" ]]; then
     failure "No resource groups found in this account"
@@ -234,6 +233,7 @@ else
     echo "No Code Engine Secrets found."
 fi
 
+echo ""
 echo -e "Review Env Vars and ConfigMaps for secrets using tools like TruffleHog/detect-secrets or manually."
 
 ibmcloud target --unset-resource-group -q &>/dev/null
