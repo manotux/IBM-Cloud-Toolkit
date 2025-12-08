@@ -76,18 +76,32 @@ echo "${SEPARATOR}"
 echo -e "Enumerating ${ORANGE}${BOLD}Code Engine Projects${RESET} across all regions via API..."
 echo " "
 
-# Target only us-east region and Default resource group
-if ! ibmcloud target -r us-east -g Default -q &>/dev/null; then
-    failure "Failed to target us-east region with Default resource group"
-fi
-
 # Get access token
 IBMCLOUD_ACCESS_TOKEN=$(ibmcloud_access_token)
 if [[ -z "${IBMCLOUD_ACCESS_TOKEN:-}" || "$IBMCLOUD_ACCESS_TOKEN" == "null" ]]; then
     failure "Failed to obtain IBM Cloud access token. Check IBMCLOUD_API_KEY."
 fi
 
+# Get all resource groups
+echo "Retrieving all resource groups..."
+RESOURCE_GROUPS=$(ibmcloud resource groups --output json 2>/dev/null) || failure "Failed to retrieve resource groups"
+if [[ -z "${RESOURCE_GROUPS:-}" || "$RESOURCE_GROUPS" == "[]" ]]; then
+    failure "No resource groups found in this account"
+fi
+
+# Get a valid resource group (first available one)
+FIRST_RG=$(echo "$RESOURCE_GROUPS" | jq -r '.[0].name')
+if [[ -z "${FIRST_RG:-}" || "$FIRST_RG" == "null" ]]; then
+    failure "Could not determine a valid resource group"
+fi
+
+# Target us-east region with the valid resource group
+if ! ibmcloud target -r us-east -g "$FIRST_RG" -q &>/dev/null; then
+    failure "Failed to target us-east region with resource group: $FIRST_RG"
+fi
+
 # List all projects across all regions/resource groups
+# The --all flag will list projects from all resource groups regardless of which one is targeted
 PROJECTS=$(ibmcloud ce project list --all --output json 2>/dev/null) || failure "Failed to retrieve Code Engine projects"
 if [[ -z "${PROJECTS:-}" || "$PROJECTS" == "[]" ]]; then
     echo "No Code Engine projects found"
