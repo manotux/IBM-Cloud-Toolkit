@@ -127,7 +127,7 @@ while IFS= read -r user; do
 
     IAM_USER=$(jq -n --arg iam_id "$iam_id" --arg user_id "$user_id" --arg email "$email" --arg state "$state" --arg last_activity "$last_activity" '{iam_id: $iam_id, user_id: $user_id, email: $email, state: $state, last_activity: $last_activity}')
     echo "${IAM_USER}" | jq >> "$OUTPUT_PATH"
-    if [[ "$state" != "ACTIVE" ]]; then
+    if [[ "$state" != "ACTIVE" && "$state" != "VPN_ONLY" ]]; then
         INACTIVE_USERS+=("${IAM_USER}")
         INACTIVE_FOUND=1
     fi
