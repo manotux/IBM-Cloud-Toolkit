@@ -106,6 +106,9 @@ Enumerates all IBM Cloud Code Engine projects using the IBM Cloud REST API. For 
 
 ## Recent Changes
 
+### Version 1.2
+- **Kubernetes Clusters**: Retrieves ingress subdomains.
+
 ### Version 1.1
 This release introduces the following enhancements:
 
@@ -117,6 +120,7 @@ This release introduces the following enhancements:
 - **Execution Change for ibm_cloud_enum.sh**: `get_buckets_files.sh` is now disabled in `ibm_cloud_enum.sh` and must be executed manually due to potentially very long execution times for accounts with thousands of files in COS buckets.
 
 ## TODO
+- gather ingress subdomain on k8s clusters
 - Support for handling multiple IBM Cloud accounts in batch mode across all enumeration scripts.
 - Implement pagination support in all modules as in get_user_policies.sh
 - Support Cloudant DBs

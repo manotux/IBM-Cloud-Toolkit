@@ -14,7 +14,7 @@ srcdir="$(dirname "${BASH_SOURCE[0]}")"
 . "$srcdir/utils.sh"
 
 BANNER="\n${BLUE}${BOLD}==============================================${RESET}
-${ORANGE}${BOLD}          IBM Cloud ToolKit v1.1 ${RESET}
+${ORANGE}${BOLD}          IBM Cloud ToolKit v1.2 ${RESET}
 ${BLUE}${BOLD}==============================================${RESET}
 IBM Cloud enumeration tool
 github.com/manotux/IBM-Cloud-Toolkit

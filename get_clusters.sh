@@ -87,7 +87,7 @@ fi
 : > "$OUTPUT_PATH" || failure "Error while creating the output file: ${BOLD}$OUTPUT_PATH${RESET}"
 
 # Extract required fields for all clusters
-CLUSTERS_OUT=$(echo "$CLUSTERS_JSON" | jq '[.[] | {name, region, masterKubeVersion, type, publicServiceEndpointEnabled: .serviceEndpoints.publicServiceEndpointEnabled, publicServiceEndpointURL: .serviceEndpoints.publicServiceEndpointURL}]')
+CLUSTERS_OUT=$(echo "$CLUSTERS_JSON" | jq '[.[] | {name, region, masterKubeVersion, type, publicServiceEndpointEnabled: .serviceEndpoints.publicServiceEndpointEnabled, publicServiceEndpointURL: .serviceEndpoints.publicServiceEndpointURL, ingress: .ingress.hostname}]')
 echo "$CLUSTERS_OUT" | jq '.' > "$OUTPUT_PATH"
 echo -e "All clusters saved to: ${BOLD}${OUTPUT_PATH}${RESET}"
 
