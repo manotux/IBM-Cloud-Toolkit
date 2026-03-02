@@ -12,19 +12,21 @@ srcdir="$(dirname "${BASH_SOURCE[0]}")"
 OUTPUT_DIR="output"
 OUTPUT_FILE="buckets.json"
 
+DEBUG=false
 usage() {
     scriptname=$(basename "$0")
-    echo "Usage: ./$scriptname [-h] [-o OUTPUT_DIR] [-f OUTPUT_FILE]"
+    echo "Usage: ./$scriptname [-h] [-o OUTPUT_DIR] [-f OUTPUT_FILE] [-v]"
     echo
     echo "Options:"
     echo "  -h              Show this help message"
     echo "  -o OUTPUT_DIR   Specify the output folder for results (default: 'output')"
     echo "  -f OUTPUT_FILE  Specify the output file name (default: 'buckets.json')"
+    echo "  -v              Enable debug mode (outputs ibmcloud commands)"
     echo
     echo "This script enumerates all IBM Cloud Object Storage buckets in the account."
 }
 
-while getopts ":ho:f:" opt; do
+while getopts ":ho:f:v" opt; do
     case $opt in
         h)
             usage
@@ -35,6 +37,9 @@ while getopts ":ho:f:" opt; do
             ;;
         f)
             OUTPUT_FILE="$OPTARG"
+            ;;
+        v)
+            DEBUG=true
             ;;
         \?)
             echo "Invalid option: -$OPTARG" >&2
@@ -62,6 +67,10 @@ echo "${SEPARATOR}"
 echo -e "Enumerating IBM Cloud ${ORANGE}${BOLD}Object Storage buckets${RESET}..."
 echo " "
 
+# Debug output
+if [ "$DEBUG" = true ]; then
+    echo -e "${BOLD}[DEBUG]${RESET} Running command: ibmcloud resource service-instances --service-name cloud-object-storage --all-resource-groups --output json"
+fi
 # Get all COS service instances (no region iteration needed)
 INSTANCES_JSON=$(ibmcloud resource service-instances --service-name cloud-object-storage --all-resource-groups --output json)
 if [[ -z "${INSTANCES_JSON:-}" || "$INSTANCES_JSON" == "[]" || "$INSTANCES_JSON" == "null" ]]; then
@@ -74,6 +83,10 @@ while IFS= read -r instance; do
     INSTANCE_NAME=$(echo "$instance" | jq -r '.name')
     INSTANCE_CRN=$(echo "$instance" | jq -r '.crn')
     REGION_ID=$(echo "$instance" | jq -r '.region_id')
+    # Debug output for bucket enumeration
+    if [ "$DEBUG" = true ]; then
+        echo -e "${BOLD}[DEBUG]${RESET} Running command: ibmcloud cos buckets --ibm-service-instance-id \"$INSTANCE_CRN\" --output json"
+    fi
     BUCKETS_JSON=$(ibmcloud cos buckets --ibm-service-instance-id "$INSTANCE_CRN" --output json 2>/dev/null)
 
     # check if there are no buckets
@@ -90,12 +103,16 @@ while IFS= read -r instance; do
 done < <(echo "$INSTANCES_JSON" | jq -c '.[]')
 
 if [[ "$ALL_BUCKETS_JSON" == "[]" ]]; then
+    echo -e "${BOLD}Total buckets found: 0${RESET}"
     echo "No Cloud Object Storage buckets found."
     exit 0
 fi
 
+# Count total buckets
+TOTAL_BUCKETS=$(echo "$ALL_BUCKETS_JSON" | jq '. | length')
+echo -e "${BOLD}Total buckets found: ${TOTAL_BUCKETS}${RESET}"
+echo " "
 OUTPUT_PATH="${OUTPUT_DIR}/${OUTPUT_FILE}"
 : > "$OUTPUT_PATH" || failure "Error while creating the output file: ${BOLD}$OUTPUT_PATH${RESET}"
-
 echo "$ALL_BUCKETS_JSON" | jq '.' > "$OUTPUT_PATH"
 echo -e "All buckets saved to: ${BOLD}${OUTPUT_PATH}${RESET}"
