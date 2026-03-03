@@ -11,23 +11,26 @@ srcdir="$(dirname "${BASH_SOURCE}")"
 . "$srcdir/utils.sh"
 
 # Variables
+OUTPUT_DIR="output"
 OUTPUT_FILE="regions.txt"
+DEBUG=false
 
 # Usage
 usage() {
     scriptname=$(basename "$0")
-    echo "Usage: ./$scriptname [-h] [-o OUTPUT_DIR]"
+    echo "Usage: ./$scriptname [-h] [-o OUTPUT_DIR] [-f OUTPUT_FILE] [-v]"
     echo
     echo "Options:"
     echo "  -h              Show this help message"
     echo "  -o OUTPUT_DIR   Specify the output folder for results (default: 'output')"
     echo "  -f OUTPUT_FILE  Specify the output file name (default: 'regions.txt')"
+    echo "  -v              Enable debug mode (outputs commands)"
     echo
     echo "This script retrieves the list of enabled regions in an IBM Cloud account."
 }
 
 # Parse arguments
-while getopts ":ho:" opt; do
+while getopts ":ho:f:v" opt; do
     case $opt in
         h)
             usage
@@ -38,6 +41,9 @@ while getopts ":ho:" opt; do
             ;;
         f)
             OUTPUT_FILE="$OPTARG"
+            ;;
+        v)
+            DEBUG=true
             ;;
         \?)
             echo "Invalid option: -$OPTARG" >&2
@@ -66,19 +72,42 @@ fi
 # Ensure the output file exists
 OUTPUT_PATH="${OUTPUT_DIR}/${OUTPUT_FILE}"
 : > "$OUTPUT_PATH" || failure "Error while creating the output file: ${BOLD}$OUTPUT_PATH${RESET}"
-
 echo " "
 echo "${SEPARATOR}"
 echo -e "Enumerating enabled ${ORANGE}${BOLD}regions${RESET} on IBM Cloud account..."
 echo " "
+# Debug output
+if [ "$DEBUG" = true ]; then
+fi
+REGIONS=$(ibmcloud regions --output json 2>&1 | jq -r '.[].Name') || true
+EXIT_CODE=$?
+    if [ "$DEBUG" = true ]; then
+        echo -e "${BOLD}[DEBUG]${RESET} Failed to retrieve regions"
+    fi
+    failure "Could not retrieve regions. Retry."
 
-REGIONS=$(ibmcloud regions --output json | jq -r '.[].Name') || failure "Could not retrieve regions. Retry."
+# Count regions
+TOTAL_REGIONS=$(echo "$REGIONS" | wc -l | tr -d ' ')
+if [ "$DEBUG" = true ]; then
+    echo -e "${BOLD}[DEBUG]${RESET} Found $TOTAL_REGIONS region(s)"
+fi
+echo -e "${BOLD}Total regions found: $TOTAL_REGIONS${RESET}"
+echo " "
 
-if [[ -z "${REGIONS:-}" ]]; then
-    echo "No regions found."
-else
-    while IFS= read -r region; do
+# Display regions
+echo -e "${BOLD}Regions:${RESET}"
+while IFS= read -r region; do
+    if [[ -n "$region" ]]; then
+        echo "  - $region"
         echo "$region" >> "$OUTPUT_PATH"
-    done <<< "$REGIONS"
-    echo -e "Output saved to: ${BOLD}${OUTPUT_PATH}${RESET}"
+    fi
+done <<< "$REGIONS"
+
+echo " "
+echo -e "All regions saved to: ${BOLD}${OUTPUT_PATH}${RESET}"
+if [ "$DEBUG" = true ]; then
+    echo " "
+    echo -e "${BOLD}[DEBUG]${RESET} Summary:"
+    echo -e "${BOLD}[DEBUG]${RESET}   Total regions: $TOTAL_REGIONS"
+    echo -e "${BOLD}[DEBUG]${RESET}   Output file: $OUTPUT_PATH"
 fi
