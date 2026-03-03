@@ -12,6 +12,7 @@ srcdir="$(dirname "${BASH_SOURCE[0]}")"
 
 OUTPUT_DIR="output"
 OUTPUT_FILE="schematics_workspaces.json"
+DEBUG=false
 REGIONS="us-south eu-de ca-tor"
 
 usage() {
@@ -83,12 +84,14 @@ echo " "
 # Use only valid Schematics locations
 # us-south also retrieves us-east, the same seems to happen with eu-de/eu-gb and ca-tor/ca-mon
 if [ "$DEBUG" = true ]; then
+    echo -e "${BOLD}[DEBUG]${RESET} Processing Schematics regions: $REGIONS"
 fi
 
 ALL_WORKSPACES_JSON="[]"
 TOTAL_WORKSPACES=0
 declare -A REGION_WORKSPACE_COUNTS
 for region in $REGIONS; do
+    if [ "$DEBUG" = true ]; then
         echo -e "${BOLD}[DEBUG]${RESET} Processing region: $region"
         echo -e "${BOLD}[DEBUG]${RESET} Running command: ibmcloud target -r \"$region\""
     fi
@@ -96,6 +99,7 @@ for region in $REGIONS; do
         warning "Failed to target region $region"
         if [ "$DEBUG" = true ]; then
             echo -e "${BOLD}[DEBUG]${RESET} Skipping region $region"
+        fi
         continue
     fi
     if [ "$DEBUG" = true ]; then
@@ -131,6 +135,7 @@ for region in $REGIONS; do
     fi
     WORKSPACE_COUNT=$(echo "$REGION_WORKSPACES" | jq 'length')
     REGION_WORKSPACE_COUNTS[$region]=$WORKSPACE_COUNT
+    TOTAL_WORKSPACES=$((TOTAL_WORKSPACES + WORKSPACE_COUNT))
     if [ "$DEBUG" = true ]; then
         echo -e "${BOLD}[DEBUG]${RESET} Region $region: Found $WORKSPACE_COUNT workspace(s)"
     fi
@@ -147,6 +152,7 @@ if [[ "$ALL_WORKSPACES_JSON" == "[]" || $TOTAL_WORKSPACES -eq 0 ]]; then
     exit 0
 fi
 
+# Display workspaces by region
 echo -e "${BOLD}Workspaces by region:${RESET}"
 for region in $REGIONS; do
     if [[ ${REGION_WORKSPACE_COUNTS[$region]:-0} -gt 0 ]]; then
@@ -157,6 +163,7 @@ for region in $REGIONS; do
             if [[ -n "$ws_name" ]]; then
                 echo "    - $ws_name"
             fi
+        done <<< "$REGION_WS"
     fi
 done
 
