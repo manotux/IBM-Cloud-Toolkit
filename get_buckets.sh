@@ -87,13 +87,37 @@ while IFS= read -r instance; do
     if [ "$DEBUG" = true ]; then
         echo -e "${BOLD}[DEBUG]${RESET} Running command: ibmcloud cos buckets --ibm-service-instance-id \"$INSTANCE_CRN\" --output json"
     fi
-    BUCKETS_JSON=$(ibmcloud cos buckets --ibm-service-instance-id "$INSTANCE_CRN" --output json 2>/dev/null)
-
-    # check if there are no buckets
-    if [[ -z "${BUCKETS_JSON:-}" || "$BUCKETS_JSON" == "null" || $(echo "$BUCKETS_JSON" | jq '.Buckets == null') == "true" ]]; then
+    # Use || true to prevent script from exiting on command failure
+    BUCKETS_JSON=$(ibmcloud cos buckets --ibm-service-instance-id "$INSTANCE_CRN" --output json 2>&1) || true
+    EXIT_CODE=$?
+    # Check if command failed or returned error message
+    if [ $EXIT_CODE -ne 0 ] || [[ "$BUCKETS_JSON" =~ "FAILED" ]]; then
+        if [ "$DEBUG" = true ]; then
+            echo -e "${BOLD}[DEBUG]${RESET} Command failed or returned error, skipping this instance"
+        fi
         continue
     fi
 
+    # Check if there are no buckets (valid JSON with null or empty Buckets array)
+    if [[ -z "${BUCKETS_JSON:-}" ]] || \
+       [[ "$BUCKETS_JSON" == "null" ]] || \
+       $(echo "$BUCKETS_JSON" | jq -e '.Buckets == null' 2>/dev/null) == "true"; then
+        if [ "$DEBUG" = true ]; then
+            echo -e "${BOLD}[DEBUG]${RESET} No buckets in this instance, continuing"
+        fi
+        continue
+    fi
+    # Validate that we have valid JSON with Buckets array
+    if ! echo "$BUCKETS_JSON" | jq -e '.Buckets' &>/dev/null; then
+        if [ "$DEBUG" = true ]; then
+            echo -e "${BOLD}[DEBUG]${RESET} Invalid JSON structure, skipping this instance"
+        fi
+        continue
+    fi
+    if [ "$DEBUG" = true ]; then
+        BUCKET_COUNT=$(echo "$BUCKETS_JSON" | jq '.Buckets | length')
+        echo -e "${BOLD}[DEBUG]${RESET} Found $BUCKET_COUNT bucket(s) in this instance"
+    fi
     for bucket in $(echo "$BUCKETS_JSON" | jq -c '.Buckets[]'); do
         BUCKET_NAME=$(echo "$bucket" | jq -r '.Name')
         CREATION_DATE=$(echo "$bucket" | jq -r '.CreationDate')
@@ -116,3 +140,5 @@ OUTPUT_PATH="${OUTPUT_DIR}/${OUTPUT_FILE}"
 : > "$OUTPUT_PATH" || failure "Error while creating the output file: ${BOLD}$OUTPUT_PATH${RESET}"
 echo "$ALL_BUCKETS_JSON" | jq '.' > "$OUTPUT_PATH"
 echo -e "All buckets saved to: ${BOLD}${OUTPUT_PATH}${RESET}"
+# Explicitly exit with success
+exit 0
