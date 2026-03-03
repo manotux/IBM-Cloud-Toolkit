@@ -22,6 +22,7 @@ usage() {
     echo "  -h              Show this help message"
     echo "  -o OUTPUT_DIR   Specify the output folder for results (default: 'output')"
     echo "  -f OUTPUT_FILE  Specify the output file name (default: 'databases.json')"
+    echo "  -v              Enable debug mode (outputs commands)"
     echo
     echo "This script enumerates all IBM Cloud Databases."
 }
