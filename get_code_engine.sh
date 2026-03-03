@@ -6,7 +6,7 @@
 #   - Applications (including environment variables and public endpoints)
 #   - Functions
 #   - ConfigMaps
-#   - Secrets
+#   - Secrets 
 # Requires IBM Cloud CLI and code-engine plugin. Requires jq for JSON processing.
 
 srcdir="$(dirname "${BASH_SOURCE[0]}")"
@@ -79,7 +79,7 @@ echo " "
 # Get access token
 IBMCLOUD_ACCESS_TOKEN=$(ibmcloud_access_token)
 if [[ -z "${IBMCLOUD_ACCESS_TOKEN:-}" || "$IBMCLOUD_ACCESS_TOKEN" == "null" ]]; then
-    failure "Failed to obtain IBM Cloud access token. Check IBMCLOUD_API_KEY."
+    failure "Failed to obtain IBM Cloud access token. Make sure you are logged in with 'ibmcloud login'."
 fi
 
 # Get all resource groups

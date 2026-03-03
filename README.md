@@ -20,7 +20,7 @@ Required permissions may vary depending on the services being audited. At minimu
 
 - IBM Cloud CLI
 - The `jq` utility - lightweight command-line JSON processor
-- Authenticated session
+- Authenticated session via `ibmcloud login`
 
 To install the IBM Cloud CLI, you can use the provided script:
 
@@ -107,6 +107,7 @@ Enumerates all IBM Cloud Code Engine projects using the IBM Cloud REST API. For 
 ## Recent Changes
 
 ### Version 1.2
+- **Authentication Enhancement**: IBMCLOUD_API_KEY env var is no longer required. Access tokens are now retrieved from the authenticated IBM Cloud CLI session (`ibmcloud login`). This change supports environments where users are restricted from creating API keys.
 - **Kubernetes Clusters**: Retrieves ingress subdomains.
 
 ### Version 1.1
@@ -120,10 +121,10 @@ This release introduces the following enhancements:
 - **Execution Change for ibm_cloud_enum.sh**: `get_buckets_files.sh` is now disabled in `ibm_cloud_enum.sh` and must be executed manually due to potentially very long execution times for accounts with thousands of files in COS buckets.
 
 ## TODO
-- gather ingress subdomain on k8s clusters
 - Support for handling multiple IBM Cloud accounts in batch mode across all enumeration scripts.
 - Implement pagination support in all modules as in get_user_policies.sh
 - Support Cloudant DBs
+- Retrieve public endpoints (hostname:port) of public DBs
 - Enumerate Load Balancer resources
 
 ## Author

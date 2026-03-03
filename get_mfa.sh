@@ -3,7 +3,7 @@
 # get_mfa.sh
 #
 # This script retrieves the IBM Cloud account identity settings and determines the MFA requirement status.
-# Requires curl, jq, and IBM Cloud API Key (IBMCLOUD_API_KEY env var).
+# Requires curl, jq, and an authenticated IBM Cloud CLI session.
 
 srcdir="$(dirname "${BASH_SOURCE[0]}")"
 . "$srcdir/utils.sh"
@@ -59,16 +59,11 @@ fi
 
 OUTPUT_PATH="${OUTPUT_DIR}/${OUTPUT_FILE}"
 
-# Check for API key
-if [[ -z "${IBMCLOUD_API_KEY:-}" ]]; then
-    failure "IBMCLOUD_API_KEY environment variable is not set. Please export your IBM Cloud API key as IBMCLOUD_API_KEY."
-fi
-
-# Get access token and account ID
+# Get access token from ibmcloud cli session
 IBMCLOUD_ACCESS_TOKEN=$(ibmcloud_access_token)
 
 if [[ -z "${IBMCLOUD_ACCESS_TOKEN:-}" || "${IBMCLOUD_ACCESS_TOKEN}" == "null" ]]; then
-    failure "Failed to obtain IBM Cloud access token. Check your IBMCLOUD_API_KEY."
+    failure "Failed to obtain IBM Cloud access token. Make sure you are logged in with 'ibmcloud login'."
 fi
 
 IBMCLOUD_ACCOUNT_ID=$(ibmcloud_account_id)

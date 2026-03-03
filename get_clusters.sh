@@ -5,7 +5,7 @@
 # This script enumerates all IBM Cloud Kubernetes/Openshift clusters using the IBM Cloud REST API and outputs them as a JSON array.
 # For each cluster, it outputs: name, region, masterKubeVersion, type, serviceEndpoints.publicServiceEndpointEnabled, serviceEndpoints.publicServiceEndpointURL.
 # If any cluster has public endpoint enabled, a separate output file is created with only those clusters.
-# Requires curl, jq, and IBM Cloud API Key (IBMCLOUD_API_KEY env var).
+# Requires curl, jq, and an authenticated IBM Cloud CLI session.
 
 srcdir="$(dirname "${BASH_SOURCE[0]}")"
 . "$srcdir/utils.sh"
@@ -65,16 +65,11 @@ echo "${SEPARATOR}"
 echo -e "Enumerating IBM Cloud ${ORANGE}${BOLD}Clusters${RESET}..."
 echo " "
 
-# Check for API key
-if [[ -z "${IBMCLOUD_API_KEY:-}" ]]; then
-    failure "IBMCLOUD_API_KEY environment variable is not set. Please export your IBM Cloud API key as IBMCLOUD_API_KEY."
-fi
-
-# Get access token
+# Get access token from ibmcloud cli session
 IBMCLOUD_ACCESS_TOKEN=$(ibmcloud_access_token)
 
 if [[ -z "${IBMCLOUD_ACCESS_TOKEN:-}" || "${IBMCLOUD_ACCESS_TOKEN}" == "null" ]]; then
-    failure "Failed to obtain IBM Cloud access token. Check your IBMCLOUD_API_KEY."
+    failure "Failed to obtain IBM Cloud access token. Make sure you are logged in with 'ibmcloud login'."
 fi
 
 CLUSTERS_JSON=$(curl -s -X GET "https://containers.cloud.ibm.com/global/v2/vpc/getClusters" -H "Authorization: Bearer $IBMCLOUD_ACCESS_TOKEN")
