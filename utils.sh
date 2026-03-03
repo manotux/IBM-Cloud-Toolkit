@@ -26,7 +26,7 @@ ibmcloud_account_id(){
 }
 
 ibmcloud_access_token(){
-    curl -s -X POST -H "Content-Type: application/x-www-form-urlencoded" -d "grant_type=urn:ibm:params:oauth:grant-type:apikey&apikey=$IBMCLOUD_API_KEY" https://iam.cloud.ibm.com/identity/token | jq -r '.access_token'
+    ibmcloud iam oauth-tokens --output json 2>/dev/null | jq -r '.iam_token' 2>/dev/null | cut -d ' ' -f 2
 }
 
 ibmcloud_account_name(){
