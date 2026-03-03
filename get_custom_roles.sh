@@ -13,21 +13,25 @@ srcdir="$(dirname "${BASH_SOURCE[0]}")"
 OUTPUT_DIR="output"
 OUTPUT_FILE="custom_roles.txt"
 
+DEBUG=false
+DEBUG_FULL=false
 # Usage
 usage() {
     scriptname=$(basename "$0")
-    echo "Usage: ./$scriptname [-h] [-o OUTPUT_DIR] [-f OUTPUT_FILE]"
+    echo "Usage: ./$scriptname [-h] [-o OUTPUT_DIR] [-f OUTPUT_FILE] [-v] [-d]"
     echo
     echo "Options:"
     echo "  -h              Show this help message"
     echo "  -o OUTPUT_DIR   Specify the output folder for results (default: 'output')"
     echo "  -f OUTPUT_FILE  Specify the output file name (default: 'custom_roles.txt')"
+    echo "  -v              Enable debug mode (outputs commands with redacted sensitive data)"
+    echo "  -d              Show full debug output without redaction (requires -v)"
     echo
     echo "This script enumerates all custom IAM roles in the IBM Cloud account."
 }
 
 # Parse arguments
-while getopts ":ho:f:" opt; do
+while getopts ":ho:f:vd" opt; do
     case $opt in
         h)
             usage
@@ -38,6 +42,12 @@ while getopts ":ho:f:" opt; do
             ;;
         f)
             OUTPUT_FILE="$OPTARG"
+            ;;
+        v)
+            DEBUG=true
+            ;;
+        d)
+            DEBUG_FULL=true
             ;;
         \?)
             echo "Invalid option: -$OPTARG" >&2
@@ -52,6 +62,12 @@ while getopts ":ho:f:" opt; do
     esac
 done
 
+# Check if -d is used without -v
+if [ "$DEBUG_FULL" = true ] && [ "$DEBUG" = false ]; then
+    echo "Error: -d flag requires -v flag to be set" >&2
+    usage
+    exit 1
+fi
 # Check if IBM Cloud CLI and jq are installed
 require_ibmcloud_jq
 
@@ -70,16 +86,25 @@ echo "${SEPARATOR}"
 echo -e "Enumerating all ${ORANGE}${BOLD}custom IAM roles${RESET} ..."
 echo " "
 
-# Check for API key
-if [[ -z "${IBMCLOUD_API_KEY:-}" ]]; then
-    failure "IBMCLOUD_API_KEY environment variable is not set. Please export your IBM Cloud API key as IBMCLOUD_API_KEY."
+# Debug output
+if [ "$DEBUG" = true ]; then
+    echo -e "${BOLD}[DEBUG]${RESET} Retrieving access token"
 fi
 
 # Get access token
 IBMCLOUD_ACCESS_TOKEN=$(ibmcloud_access_token)
 
 if [[ -z "${IBMCLOUD_ACCESS_TOKEN:-}" || "$IBMCLOUD_ACCESS_TOKEN" == "null" ]]; then
-    failure "Failed to obtain IBM Cloud access token. Check IBMCLOUD_API_KEY."
+    failure "Failed to obtain IBM Cloud access token."
+fi
+if [ "$DEBUG" = true ]; then
+    if [ "$DEBUG_FULL" = true ]; then
+        echo -e "${BOLD}[DEBUG]${RESET} Access token: $IBMCLOUD_ACCESS_TOKEN"
+    else
+        TOKEN_PREFIX="${IBMCLOUD_ACCESS_TOKEN:0:20}"
+        echo -e "${BOLD}[DEBUG]${RESET} Access token obtained (${TOKEN_PREFIX}...) [use -d flag for full token]"
+    fi
+    echo -e "${BOLD}[DEBUG]${RESET} Retrieving account ID"
 fi
 
 # Retrieve account ID
@@ -89,15 +114,34 @@ if [[ -z "${IBMCLOUD_ACCOUNT_ID:-}" || "$IBMCLOUD_ACCOUNT_ID" == "null" ]]; then
     failure "Failed to obtain IBM Cloud account ID. Make sure you are logged in and targeting an account."
 fi
 
+if [ "$DEBUG" = true ]; then
+    if [ "$DEBUG_FULL" = true ]; then
+        echo -e "${BOLD}[DEBUG]${RESET} Account ID: $IBMCLOUD_ACCOUNT_ID"
+        echo -e "${BOLD}[DEBUG]${RESET} Running: curl -X GET -H \"Authorization: Bearer $IBMCLOUD_ACCESS_TOKEN\" \"https://iam.cloud.ibm.com/v2/roles?account_id=$IBMCLOUD_ACCOUNT_ID\""
+    else
+        echo -e "${BOLD}[DEBUG]${RESET} Account ID obtained"
+        echo -e "${BOLD}[DEBUG]${RESET} Running: curl -X GET -H \"Authorization: Bearer <redacted>\" \"https://iam.cloud.ibm.com/v2/roles?account_id=<redacted>\""
+    fi
+fi
 # Enumerate custom roles
 CUSTOM_ROLES=$(curl -s -X GET \
     -H "Authorization: Bearer $IBMCLOUD_ACCESS_TOKEN" \
     "https://iam.cloud.ibm.com/v2/roles?account_id=$IBMCLOUD_ACCOUNT_ID" | jq '.custom_roles')
 
+echo " "
 if [[ -z "${CUSTOM_ROLES:-}" || "$CUSTOM_ROLES" == "[]" || "$CUSTOM_ROLES" == "null" ]]; then
+    echo -e "${BOLD}Total custom roles found: 0${RESET}"
     echo "No custom roles found."
 else
+    # Count custom roles
+    TOTAL_CUSTOM_ROLES=$(echo "$CUSTOM_ROLES" | jq 'length')
+    if [ "$DEBUG" = true ]; then
+        echo -e "${BOLD}[DEBUG]${RESET} Total custom roles found: $TOTAL_CUSTOM_ROLES"
+    fi
     : > "$OUTPUT_PATH" || failure "Error while creating the output file: ${BOLD}$OUTPUT_PATH${RESET}"
     echo "$CUSTOM_ROLES" | jq > "$OUTPUT_PATH"
-    echo -e "Output with all custom roles saved to: ${BOLD}${OUTPUT_PATH}${RESET}. Investigate for excessive privileges."
+    echo -e "${BOLD}Total custom roles found: $TOTAL_CUSTOM_ROLES${RESET}"
+    echo -e "Output with all custom roles saved to: ${BOLD}${OUTPUT_PATH}${RESET}"
+    echo " "
+    echo -e "Review custom roles for excessive privileges."
 fi
