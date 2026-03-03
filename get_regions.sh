@@ -78,14 +78,17 @@ echo -e "Enumerating enabled ${ORANGE}${BOLD}regions${RESET} on IBM Cloud accoun
 echo " "
 # Debug output
 if [ "$DEBUG" = true ]; then
+    echo -e "${BOLD}[DEBUG]${RESET} Running command: ibmcloud regions --output json"
 fi
 REGIONS=$(ibmcloud regions --output json 2>&1 | jq -r '.[].Name') || true
 EXIT_CODE=$?
+if [ $EXIT_CODE -ne 0 ] || [[ -z "${REGIONS:-}" ]]; then
     if [ "$DEBUG" = true ]; then
         echo -e "${BOLD}[DEBUG]${RESET} Failed to retrieve regions"
     fi
     failure "Could not retrieve regions. Retry."
 
+fi
 # Count regions
 TOTAL_REGIONS=$(echo "$REGIONS" | wc -l | tr -d ' ')
 if [ "$DEBUG" = true ]; then
@@ -102,7 +105,6 @@ while IFS= read -r region; do
         echo "$region" >> "$OUTPUT_PATH"
     fi
 done <<< "$REGIONS"
-
 echo " "
 echo -e "All regions saved to: ${BOLD}${OUTPUT_PATH}${RESET}"
 if [ "$DEBUG" = true ]; then
