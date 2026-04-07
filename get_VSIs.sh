@@ -214,7 +214,7 @@ if [ "$DEBUG" = true ]; then
     echo -e "${BOLD}[DEBUG]${RESET}   Total VSIs: $TOTAL_VSIS"
     echo -e "${BOLD}[DEBUG]${RESET}   Metadata enabled: $METADATA_ENABLED_COUNT"
     if [ $TOTAL_VSIS -gt 0 ]; then
-        echo -e "${BOLD}[DEBUG]${RESET}   Percentage with meta $(awk "BEGIN {printf \"%.1f\", ($METADATA_ENABLED_COUNT/$TOTAL_VSIS)*100}")%"
+        echo -e "${BOLD}[DEBUG]${RESET}   Percentage with metadata enabled: $(awk "BEGIN {printf \"%.1f\", ($METADATA_ENABLED_COUNT/$TOTAL_VSIS)*100}")%"
     fi
     echo -e "${BOLD}[DEBUG]${RESET}   VSIs by region:"
     for region in $REGIONS; do
