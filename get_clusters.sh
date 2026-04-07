@@ -5,8 +5,8 @@
 # This script enumerates all IBM Cloud Kubernetes/Openshift clusters using the IBM Cloud REST API and outputs them as a JSON array.
 # For each cluster, it outputs: name, region, masterKubeVersion, type, serviceEndpoints.publicServiceEndpointEnabled, serviceEndpoints.publicServiceEndpointURL.
 # If any cluster has public endpoint enabled, a separate output file is created with only those clusters.
+# Requires curl, jq, and an authenticated IBM Cloud CLI session.
 
-# Requires curl, jq, and IBM Cloud CLI (must be logged in).
 srcdir="$(dirname "${BASH_SOURCE[0]}")"
 . "$srcdir/utils.sh"
 
@@ -66,10 +66,11 @@ if [ "$DEBUG_FULL" = true ] && [ "$DEBUG" = false ]; then
     usage
     exit 1
 fi
+
 require_jq
 require_curl
-
 require_ibmcloud_login
+
 if [ ! -d "$OUTPUT_DIR" ]; then
     mkdir -p "$OUTPUT_DIR" || failure "Error while creating the output directory: ${BOLD}$OUTPUT_DIR${RESET}"
 fi
@@ -87,8 +88,9 @@ if [ "$DEBUG" = true ]; then
     echo -e "${BOLD}[DEBUG]${RESET} Retrieving access token: ibmcloud iam oauth-tokens"
 fi
 
-# Get access token from ibmcloud CLI
-IBMCLOUD_ACCESS_TOKEN=$(ibmcloud iam oauth-tokens --output json 2>/dev/null | jq -r '.iam_token' 2>/dev/null | cut -d ' ' -f 2)
+# Get access token from ibmcloud cli session
+IBMCLOUD_ACCESS_TOKEN=$(ibmcloud_access_token)
+
 if [[ -z "${IBMCLOUD_ACCESS_TOKEN:-}" || "${IBMCLOUD_ACCESS_TOKEN}" == "null" ]]; then
     failure "Failed to obtain IBM Cloud access token. Please ensure you are logged in with 'ibmcloud login'."
 fi
@@ -118,7 +120,7 @@ fi
 : > "$OUTPUT_PATH" || failure "Error while creating the output file: ${BOLD}$OUTPUT_PATH${RESET}"
 
 # Extract required fields for all clusters
-CLUSTERS_OUT=$(echo "$CLUSTERS_JSON" | jq '[.[] | {name, region, masterKubeVersion, type, publicServiceEndpointEnabled: .serviceEndpoints.publicServiceEndpointEnabled, publicServiceEndpointURL: .serviceEndpoints.publicServiceEndpointURL}]')
+CLUSTERS_OUT=$(echo "$CLUSTERS_JSON" | jq '[.[] | {name, region, masterKubeVersion, type, publicServiceEndpointEnabled: .serviceEndpoints.publicServiceEndpointEnabled, publicServiceEndpointURL: .serviceEndpoints.publicServiceEndpointURL, ingress: .ingress.hostname}]')
 echo "$CLUSTERS_OUT" | jq '.' > "$OUTPUT_PATH"
 echo -e "${BOLD}Total clusters found: $TOTAL_CLUSTERS${RESET}"
 echo -e "All clusters saved to: ${BOLD}${OUTPUT_PATH}${RESET}"

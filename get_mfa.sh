@@ -3,7 +3,7 @@
 # get_mfa.sh
 #
 # This script retrieves the IBM Cloud account identity settings and determines the MFA requirement status.
-# Requires curl, jq, and IBM Cloud CLI (must be logged in).
+# Requires curl, jq, and an authenticated IBM Cloud CLI session.
 
 srcdir="$(dirname "${BASH_SOURCE[0]}")"
 . "$srcdir/utils.sh"
