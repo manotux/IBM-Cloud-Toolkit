@@ -6,7 +6,7 @@
 #   - Applications (including environment variables and public endpoints)
 #   - Functions
 #   - ConfigMaps
-#   - Secrets
+#   - Secrets 
 # Requires IBM Cloud CLI and code-engine plugin. Requires jq for JSON processing.
 
 srcdir="$(dirname "${BASH_SOURCE[0]}")"

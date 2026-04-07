@@ -6,15 +6,15 @@
 # Usage: ./ibm_cloud_enum.sh [-h] [-o OUTPUT_DIR]
 # -h: Show help
 # -o OUTPUT_DIR: Specify output directory for all scripts (default: output)
-# Requires IBM Cloud CLI, jq for JSON parsing, curl for REST API requests,
-# exported IBM Cloud API Key envvar (IBMCLOUD_API_KEY), and the following
-# plugins of IBM Cloud CLI: databases ("cdb"), vpc-infrastructure ("is")
+# Requires IBM Cloud CLI (authenticated session via 'ibmcloud login'), jq for JSON parsing,
+# curl for REST API requests, and the following plugins of IBM Cloud CLI:
+# databases ("cdb"), vpc-infrastructure ("is")
 
 srcdir="$(dirname "${BASH_SOURCE[0]}")"
 . "$srcdir/utils.sh"
 
 BANNER="\n${BLUE}${BOLD}==============================================${RESET}
-${ORANGE}${BOLD}          IBM Cloud ToolKit v1.1 ${RESET}
+${ORANGE}${BOLD}          IBM Cloud ToolKit v1.2 ${RESET}
 ${BLUE}${BOLD}==============================================${RESET}
 IBM Cloud enumeration tool
 github.com/manotux/IBM-Cloud-Toolkit
