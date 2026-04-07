@@ -88,12 +88,12 @@ ALL_CONFIGMAPS_JSON="[]"
 ALL_SECRETS_JSON="[]"
 
 # Counters
-TOTAL_PROJECTS=0
-TOTAL_APPS=0
-TOTAL_PUBLIC_APPS=0
-TOTAL_FUNCTIONS=0
-TOTAL_CONFIGMAPS=0
-TOTAL_SECRETS=0
+_PROJECTS=0
+_APPS=0
+_PUBLIC_APPS=0
+_FUNCTIONS=0
+_CONFIGMAPS=0
+_SECRETS=0
 echo " "
 echo "${SEPARATOR}"
 echo -e "Enumerating ${ORANGE}${BOLD}Code Engine Projects${RESET} across all regions via API..."
@@ -161,7 +161,7 @@ if [[ -z "${PROJECTS:-}" || "$PROJECTS" == "[]" ]]; then
     exit 0
 else
 
-    TOTAL_PROJECTS=$(echo "$PROJECTS" | jq 'length')
+    _PROJECTS=$(echo "$PROJECTS" | jq 'length')
     if [ "$DEBUG" = true ]; then
         echo -e "${BOLD}[DEBUG]${RESET} Found $TOTAL_PROJECTS Code Engine project(s)"
     fi
@@ -288,7 +288,7 @@ fi
 if [[ $(echo "$PROJECTS" | jq 'length') -gt 0 ]]; then
     : > "$PROJECTS_OUTPUT_PATH" || failure "Error while creating the output file: ${BOLD}$PROJECTS_OUTPUT_PATH${RESET}"
     echo "$PROJECTS" | jq '.' > "$PROJECTS_OUTPUT_PATH"
-    echo -e "${BOLD}Total projects: $TOTAL_PROJECTS${RESET}"
+    echo -e "${BOLD}Total Projects: $TOTAL_PROJECTS${RESET}"
     echo -e "All Code Engine Projects saved to: ${BOLD}${PROJECTS_OUTPUT_PATH}${RESET}"
 fi
 
@@ -296,10 +296,10 @@ fi
 if [[ $(echo "$ALL_APPS_JSON" | jq 'length') -gt 0 ]]; then
     : > "$APPS_OUTPUT_PATH" || failure "Error while creating the output file: ${BOLD}$APPS_OUTPUT_PATH${RESET}"
     echo "$ALL_APPS_JSON" | jq '.' > "$APPS_OUTPUT_PATH"
-    echo -e "${BOLD}Total applications: $TOTAL_APPS${RESET}"
+    echo -e "${BOLD}Total Applications: $TOTAL_APPS${RESET}"
     echo -e "Code Engine Applications saved to: ${BOLD}${APPS_OUTPUT_PATH}${RESET}"
 else
-    echo -e "${BOLD}Total applications: 0${RESET}"
+    echo -e "${BOLD}Total Applications: 0${RESET}"
 fi
 
 # Save Code Engine Apps Env Vars
@@ -323,30 +323,30 @@ fi
 if [[ $(echo "$ALL_FUNCTIONS_JSON" | jq 'length') -gt 0 ]]; then
     : > "$FUNCS_OUTPUT_PATH" || failure "Error while creating the output file: ${BOLD}$FUNCS_OUTPUT_PATH${RESET}"
     echo "$ALL_FUNCTIONS_JSON" | jq '.' > "$FUNCS_OUTPUT_PATH"
-    echo -e "${BOLD}Total functions: $TOTAL_FUNCTIONS${RESET}"
+    echo -e "${BOLD}Total Functions: $TOTAL_FUNCTIONS${RESET}"
     echo -e "Code Engine Functions saved to: ${BOLD}${FUNCS_OUTPUT_PATH}${RESET}"
 else
-    echo -e "${BOLD}Total functions: 0${RESET}"
+    echo -e "${BOLD}Total Functions: 0${RESET}"
 fi
 
 # Save Code Engine ConfigMaps
 if [[ $(echo "$ALL_CONFIGMAPS_JSON" | jq 'length') -gt 0 ]]; then
     : > "$CONFIGMAPS_OUTPUT_PATH" || failure "Error while creating the output file: ${BOLD}$CONFIGMAPS_OUTPUT_PATH${RESET}"
     echo "$ALL_CONFIGMAPS_JSON" | jq '.' > "$CONFIGMAPS_OUTPUT_PATH"
-    echo -e "${BOLD}Total configmaps: $TOTAL_CONFIGMAPS${RESET}"
+    echo -e "${BOLD}Total ConfigMaps: $TOTAL_CONFIGMAPS${RESET}"
     echo -e "Code Engine ConfigMaps saved to: ${BOLD}${CONFIGMAPS_OUTPUT_PATH}${RESET}"
 else
-    echo -e "${BOLD}Total configmaps: 0${RESET}"
+    echo -e "${BOLD}Total ConfigMaps: 0${RESET}"
 fi
 
 # Save Code Engine Secrets
 if [[ $(echo "$ALL_SECRETS_JSON" | jq 'length') -gt 0 ]]; then
     : > "$SECRETS_OUTPUT_PATH" || failure "Error while creating the output file: ${BOLD}$SECRETS_OUTPUT_PATH${RESET}"
     echo "$ALL_SECRETS_JSON" | jq '.' > "$SECRETS_OUTPUT_PATH"
-    echo -e "${BOLD}Total secrets: $TOTAL_SECRETS${RESET}"
+    echo -e "${BOLD}Total Secrets: $TOTAL_SECRETS${RESET}"
     echo -e "Code Engine Secrets saved to: ${BOLD}${SECRETS_OUTPUT_PATH}${RESET}"
 else
-    echo -e "${BOLD}Total secrets: 0${RESET}"
+    echo -e "${BOLD}Total Secrets: 0${RESET}"
 fi
 if [ "$DEBUG" = true ]; then
     echo " "
