@@ -107,7 +107,7 @@ for region in $REGIONS; do
     fi
     WORKSPACES_JSON=$(ibmcloud schematics workspace list --output json 2>&1) || true
     EXIT_CODE=$?
-    if [ $EXIT_CODE -ne 0 ] || [[ "$WORKSPACES_JSON" =~ "FAILED" ]]; then
+    if [[ $EXIT_CODE -ne 0 || "$WORKSPACES_JSON" == "[]" || "$WORKSPACES_JSON" == "null" ]]; then
         if [ "$DEBUG" = true ]; then
             echo -e "${BOLD}[DEBUG]${RESET} Failed to retrieve workspaces for region $region"
         fi
