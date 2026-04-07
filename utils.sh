@@ -26,7 +26,7 @@ ibmcloud_account_id(){
 }
 
 ibmcloud_access_token(){
-    ibmcloud iam oauth-tokens --output json | jq -r '.iam_token' | sed 's/Bearer //'
+    ibmcloud iam oauth-tokens --output json 2>/dev/null | jq -r '.iam_token' 2>/dev/null | cut -d ' ' -f 2
 }
 
 ibmcloud_account_name(){
