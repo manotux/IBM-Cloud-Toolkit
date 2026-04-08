@@ -124,7 +124,6 @@ if [ "$DEBUG" = true ]; then
     echo -e "${BOLD}[DEBUG]${RESET} Total databases (combined): $TOTAL_DBS"
 fi
 
-echo " "
 echo -e "${BOLD}Total databases found: $TOTAL_DBS${RESET}"
 echo " "
 

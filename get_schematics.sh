@@ -144,7 +144,6 @@ for region in $REGIONS; do
 
 done
 
-echo " "
 echo -e "${BOLD}Total workspaces found: $TOTAL_WORKSPACES${RESET}"
 echo " "
 if [[ "$ALL_WORKSPACES_JSON" == "[]" || $TOTAL_WORKSPACES -eq 0 ]]; then

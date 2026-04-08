@@ -189,7 +189,6 @@ if [ "$DEBUG" = true ]; then
     echo -e "${BOLD}[DEBUG]${RESET} Using $MAX_PARALLEL parallel workers"
 fi
 
-echo " "
 echo -e "${BOLD}Total users: $TOTAL_USERS${RESET}"
 echo -e "Fetching activity data for each user (using $MAX_PARALLEL parallel workers)..."
 echo " "
@@ -298,7 +297,7 @@ if [[ $INACTIVE_COUNT -gt 0 ]]; then
     : > "$INACTIVE_PATH" || failure "Error while creating the output file: ${BOLD}$INACTIVE_PATH${RESET}"
     printf "%s\n" "${INACTIVE_USERS[@]}" | jq -s '.' > "$INACTIVE_PATH"
     echo " "
-    echo -e "${YELLOW}${BOLD}Warning: Inactive users found${RESET}"
+    echo -e "${YELLOW}${BOLD}Warning:${RESET} Inactive users found"
     echo -e "Inactive users saved to: ${BOLD}${INACTIVE_PATH}${RESET}"
     echo " "
     echo -e "${BOLD}Inactive users:${RESET}"

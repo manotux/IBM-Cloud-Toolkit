@@ -128,7 +128,6 @@ CUSTOM_ROLES=$(curl -s -X GET \
     -H "Authorization: Bearer $IBMCLOUD_ACCESS_TOKEN" \
     "https://iam.cloud.ibm.com/v2/roles?account_id=$IBMCLOUD_ACCOUNT_ID" | jq '.custom_roles')
 
-echo " "
 if [[ -z "${CUSTOM_ROLES:-}" || "$CUSTOM_ROLES" == "[]" || "$CUSTOM_ROLES" == "null" ]]; then
     echo -e "${BOLD}Total custom roles found: 0${RESET}"
     echo "No custom roles found."

@@ -128,7 +128,6 @@ echo "$IDENTITY_JSON" | jq '.' > "$OUTPUT_PATH"
 MFA_SETTING=$(echo "$IDENTITY_JSON" | jq -r '.mfa')
 USER_MFA_COUNT=$(echo "$IDENTITY_JSON" | jq '.user_mfa | length')
 
-echo " "
 echo -e "${BOLD}MFA Configuration:${RESET}"
 echo -e "  Account: ${BOLD}${IBMCLOUD_ACCOUNT_ID}${RESET}"
 echo -e "  MFA Setting: ${CYAN}${BOLD}${MFA_SETTING}${RESET}"
