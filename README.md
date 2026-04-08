@@ -107,8 +107,13 @@ Enumerates all IBM Cloud Code Engine projects using the IBM Cloud REST API. For 
 ## Recent Changes
 
 ### Version 1.2
-- **Authentication Enhancement**: IBMCLOUD_API_KEY env var is no longer required. Access tokens are now retrieved from the authenticated IBM Cloud CLI session (`ibmcloud login`). This change supports environments where users are restricted from creating API keys.
-- **Kubernetes Clusters**: Retrieves ingress subdomains.
+- **CLI-Based Authentication**: Removed IBMCLOUD_API_KEY environment variable requirement. Access tokens are now retrieved directly from authenticated IBM Cloud CLI sessions (`ibmcloud login`), supporting environments where API key creation is restricted.
+- **Kubernetes Clusters**: Added ingress subdomain retrieval.
+- **Debug Mode**: Added two-level debug modes across enumeration scripts, safe `-v` flag for commands and progress visibility with token-redacted output, and `-d` for full debug.
+- **Parallel Processing**: Performance improvements via parallel API requests in some scripts.
+- **Resource Statistics**: Display totals and statistics for all resources (e.g., total users, buckets, VSIs).
+- **JSON Validation**: Validate all API responses and graceful error handling.
+- **Enhanced Output**: List resources on stdout with organized formatting while detailed results are saved to output files.
 
 ### Version 1.1
 This release introduces the following enhancements:
