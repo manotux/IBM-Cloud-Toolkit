@@ -17,22 +17,25 @@ OUTPUT_DIR="output"
 OUTPUT_FILE="api_keys.txt"
 ROTATION_DAYS=90
 
+DEBUG=false
 # Usage
 usage() {
     scriptname=$(basename "$0")
     echo "Usage: ./$scriptname [-h] [-o OUTPUT_DIR] [-f OUTPUT_FILE]"
+    echo "Usage: ./$scriptname [-h] [-o OUTPUT_DIR] [-f OUTPUT_FILE] [-d ROTATION_DAYS] [-v]"
     echo
     echo "Options:"
     echo "  -h              Show this help message"
     echo "  -o OUTPUT_DIR   Specify the output folder for results (default: 'output')"
     echo "  -f OUTPUT_FILE  Specify the output file name (default: 'api_keys.txt')"
     echo "  -d ROTATION_DAYS  Set the rotation threshold in days (default: 90)"
+    echo "  -v              Enable debug mode (outputs ibmcloud commands)"
     echo
     echo "This script retrieves all API keys in the IBM Cloud account."
 }
 
 # Parse arguments
-while getopts ":ho:f:" opt; do
+while getopts ":ho:f:d:v" opt; do
     case $opt in
         h)
             usage
@@ -46,6 +49,9 @@ while getopts ":ho:f:" opt; do
             ;;
         d)
             ROTATION_DAYS="$OPTARG"
+            ;;
+        v)
+            DEBUG=true
             ;;
         \?)
             echo "Invalid option: -$OPTARG" >&2
@@ -78,12 +84,19 @@ echo " "
 echo "${SEPARATOR}"
 echo -e "Enumerating all ${ORANGE}${BOLD}API keys${RESET} ..."
 echo " "
-
+# Debug output
+if [ "$DEBUG" = true ]; then
+    echo -e "${BOLD}[DEBUG]${RESET} Running command: ibmcloud iam api-keys -a -o JSON | jq '[.[] | {id, name, created_at, created_by}]'"
+fi
 API_KEYS=$(ibmcloud iam api-keys -a -o JSON | jq '[.[] | {id, name, created_at, created_by}]')
 
 if [[ -z "${API_KEYS:-}" ]]; then
     echo "No API keys found."
 else
+    # Count total API keys
+    TOTAL_API_KEYS=$(echo "$API_KEYS" | jq '. | length')
+    echo -e "${BOLD}Total API keys found: ${TOTAL_API_KEYS}${RESET}"
+    echo " "
     : > "$OUTPUT_PATH" || failure "Error while creating the output file: ${BOLD}$OUTPUT_PATH${RESET}"
     echo "${API_KEYS}" > "$OUTPUT_PATH"
     echo -e "Output saved to: ${BOLD}${OUTPUT_PATH}${RESET}"
@@ -112,10 +125,12 @@ else
     done < <(echo "$API_KEYS" | jq -c '.[]')
 
     if (( ${#NON_ROTATED_LINES[@]} > 0 )); then
+        echo -e "${BOLD}API keys not rotated in the last ${ROTATION_DAYS} days: ${#NON_ROTATED_LINES[@]}${RESET}"
         NON_ROTATED_OUTPUT_PATH="${OUTPUT_DIR}/non_rotated_${OUTPUT_FILE}"
         printf "%s\n" "${NON_ROTATED_LINES[@]}" | jq -s '.' > "$NON_ROTATED_OUTPUT_PATH" || failure "Error while creating the output file: ${BOLD}$NON_ROTATED_OUTPUT_PATH${RESET}"
-        echo -e "API keys not rotated in the last ${BOLD}${ROTATION_DAYS} days${RESET} saved to: ${BOLD}${NON_ROTATED_OUTPUT_PATH}${RESET}"
+        echo -e "Non-rotated API keys saved to: ${BOLD}${NON_ROTATED_OUTPUT_PATH}${RESET}"
     else
+        echo -e "${BOLD}API keys not rotated in the last ${ROTATION_DAYS} days: 0${RESET}"
         echo "All API keys have been rotated within the last ${BOLD}${ROTATION_DAYS} days${RESET}."
     fi
 fi

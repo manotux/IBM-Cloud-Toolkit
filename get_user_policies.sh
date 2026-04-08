@@ -64,16 +64,11 @@ echo "${SEPARATOR}"
 echo -e "Enumerating Users with ${ORANGE}${BOLD}direct access policies${RESET} in IAM..."
 echo " "
 
-# Check for API key
-if [[ -z "${IBMCLOUD_API_KEY:-}" ]]; then
-    failure "IBMCLOUD_API_KEY environment variable is not set. Please export your IBM Cloud API key as IBMCLOUD_API_KEY."
-fi
-
-# Get access token
+# Get access token from ibmcloud cli session
 IBMCLOUD_ACCESS_TOKEN=$(ibmcloud_access_token)
 
 if [[ -z "${IBMCLOUD_ACCESS_TOKEN:-}" || "$IBMCLOUD_ACCESS_TOKEN" == "null" ]]; then
-    failure "Failed to obtain IBM Cloud access token. Check IBMCLOUD_API_KEY."
+    failure "Failed to obtain IBM Cloud access token. Make sure you are logged in with 'ibmcloud login'."
 fi
 
 # Retrieve account ID
