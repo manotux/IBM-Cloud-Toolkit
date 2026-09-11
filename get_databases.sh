@@ -77,32 +77,63 @@ if [ "$DEBUG" = true ]; then
 fi
 
 # Get Cloud Databases (cdb plugin)
-DBS_JSON=$(ibmcloud cdb deployments --json 2>&1) || true
-EXIT_CODE=$?
-if [ $EXIT_CODE -ne 0 ] || [[ "$DBS_JSON" =~ "FAILED" ]]; then
-    if [ "$DEBUG" = true ]; then
-        echo -e "${BOLD}[DEBUG]${RESET} Failed to retrieve Cloud Databases"
+CDB_STDERR=$(mktemp)
+
+if DBS_JSON=$(ibmcloud cdb deployments --json 2>"$CDB_STDERR"); then
+    if ! printf '%s' "$DBS_JSON" | jq '.' >/dev/null 2>&1; then
+        mv "$CDB_STDERR" "$OUTPUT_DIR/cdb_deployments.stderr"
+        warning "Cloud Databases CLI returned invalid JSON. See $OUTPUT_DIR/cdb_deployments.stderr"
+        DBS_JSON='[]'
+    else
+        rm -f "$CDB_STDERR"
+
+        if [ "$DBS_JSON" = "null" ]; then
+            DBS_JSON='[]'
+        fi
     fi
-    DBS_JSON="[]"
+else
+    mv "$CDB_STDERR" "$OUTPUT_DIR/cdb_deployments.stderr"
+    warning "Failed to retrieve Cloud Databases. See $OUTPUT_DIR/cdb_deployments.stderr"
+    DBS_JSON='[]'
 fi
 
 CDB_COUNT=$(echo "${DBS_JSON:-[]}" | jq 'length')
+
 if [ "$DEBUG" = true ]; then
     echo -e "${BOLD}[DEBUG]${RESET} Found $CDB_COUNT Cloud Database(s)"
     echo -e "${BOLD}[DEBUG]${RESET} Running command: ibmcloud resource service-instances --service-name dashdb-for-transactions --all-resource-groups --output json"
 fi
 
 # Get DB2 instances
-DB2_JSON=$(ibmcloud resource service-instances --service-name dashdb-for-transactions --all-resource-groups --output json 2>&1) || true
-EXIT_CODE=$?
-if [ $EXIT_CODE -ne 0 ] || [[ "$DB2_JSON" =~ "FAILED" ]]; then
-    if [ "$DEBUG" = true ]; then
-        echo -e "${BOLD}[DEBUG]${RESET} Failed to retrieve DB2 instances"
+DB2_STDERR=$(mktemp) || failure "Failed to create a temporary error file."
+
+if DB2_JSON=$(ibmcloud resource service-instances \
+    --service-name dashdb-for-transactions \
+    --all-resource-groups \
+    --output json \
+    2>"$DB2_STDERR"); then
+
+    if ! printf '%s' "$DB2_JSON" | jq '.' >/dev/null 2>&1; then
+        mv "$DB2_STDERR" "$OUTPUT_DIR/db2_instances.stderr"
+        printf '%s\n' "$DB2_JSON" > "$OUTPUT_DIR/db2_instances.stdout"
+        warning "DB2 CLI returned invalid JSON. Review $OUTPUT_DIR/db2_instances.stderr and $OUTPUT_DIR/db2_instances.stdout."
+        DB2_JSON='[]'
+
+    elif [ "$DB2_JSON" = "null" ]; then
+        rm -f "$DB2_STDERR"
+        DB2_JSON='[]'
+
+    else
+        rm -f "$DB2_STDERR"
     fi
-    DB2_JSON="[]"
+else
+    mv "$DB2_STDERR" "$OUTPUT_DIR/db2_instances.stderr"
+    warning "Failed to retrieve DB2 instances. Review $OUTPUT_DIR/db2_instances.stderr."
+    DB2_JSON='[]'
 fi
 
-DB2_COUNT=$(echo "${DB2_JSON:-[]}" | jq 'length')
+DB2_COUNT=$(printf '%s' "$DB2_JSON" | jq 'length')
+
 if [ "$DEBUG" = true ]; then
     echo -e "${BOLD}[DEBUG]${RESET} Found $DB2_COUNT DB2 instance(s)"
 fi

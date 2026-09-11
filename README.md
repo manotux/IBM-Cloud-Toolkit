@@ -20,6 +20,7 @@ Required permissions may vary depending on the services being audited. At minimu
 
 - IBM Cloud CLI
 - The `jq` utility - lightweight command-line JSON processor
+- Bash 4.3 or later - if running on macOS, install Homebrew's Bash and ensure is available in your PATH
 - Authenticated session via `ibmcloud login`
 
 To install the IBM Cloud CLI, you can use the provided script:
