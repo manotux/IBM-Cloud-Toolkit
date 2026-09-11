@@ -232,17 +232,20 @@ export TEMP_DIR
 
 # Process users in parallel
 USER_INDEX=0
-RUNNING_JOBS=0
+PIDS=()
+
 while IFS= read -r user; do
     USER_INDEX=$((USER_INDEX + 1))
     # Launch background job
     fetch_user_details "$user" "$USER_INDEX" "$TEMP_DIR" "$IBMCLOUD_ACCOUNT_ID" "$IBMCLOUD_ACCESS_TOKEN" "$DEBUG" "$DEBUG_FULL" &
-    RUNNING_JOBS=$((RUNNING_JOBS + 1))
+
+    PIDS+=("$!")
     # Wait if we've reached max parallel jobs
-    if [ $RUNNING_JOBS -ge $MAX_PARALLEL ]; then
-        wait -n  # Wait for any job to complete
-        RUNNING_JOBS=$((RUNNING_JOBS - 1))
+    if [ "${#PIDS[@]}" -ge "$MAX_PARALLEL" ]; then
+        wait "${PIDS[0]}"
+        PIDS=("${PIDS[@]:1}")
     fi
+
     # Show progress every 10 users (only in non-debug mode)
     if [ "$DEBUG" = false ] && [ $((USER_INDEX % 10)) -eq 0 ]; then
         echo -ne "\rProcessed: $USER_INDEX/$TOTAL_USERS users..."
