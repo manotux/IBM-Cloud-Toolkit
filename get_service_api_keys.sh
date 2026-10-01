@@ -8,13 +8,13 @@
 # in a readable JSON format.
 # It also identifies Service API keys that have not been rotated within
 # a configurable period (default: 90 days), and API keys that contain
-# an actual apikey value (saved separately to leaked_service_api_keys.json).
+# an actual apikey value (savaed separately to leaked_service_api_keys.json).
 #
 # Requires IBM Cloud CLI and jq for JSON parsing.
 
 srcdir="$(dirname "${BASH_SOURCE[0]}")"
 . "$srcdir/utils.sh"
-
+ac
 # Default values
 OUTPUT_DIR="output"
 OUTPUT_FILE="service_api_keys.json"
@@ -173,23 +173,26 @@ fetch_service_api_keys() {
 
 # Export function and variables for parallel execution
 export -f fetch_service_api_keys
-export SERVICE_IDS_JSON
+export -n SERVICE_IDS_JSON
 export DEBUG
 export TEMP_DIR
 
 # Process Service IDs in parallel
 SERVICE_INDEX=0
-RUNNING_JOBS=0
+PIDS=()
+
 while IFS= read -r service_id; do
     SERVICE_INDEX=$((SERVICE_INDEX + 1))
     # Launch background job
     fetch_service_api_keys "$service_id" "$SERVICE_INDEX" "$TEMP_DIR" "$SERVICE_IDS_JSON" "$DEBUG" &
-    RUNNING_JOBS=$((RUNNING_JOBS + 1))
+
+    PIDS+=("$!")
     # Wait if we've reached max parallel jobs
-    if [ $RUNNING_JOBS -ge $MAX_PARALLEL ]; then
-        wait -n  # Wait for any job to complete
-        RUNNING_JOBS=$((RUNNING_JOBS - 1))
+    if [ "${#PIDS[@]}" -ge "$MAX_PARALLEL" ]; then
+        wait "${PIDS[0]}"
+        PIDS=("${PIDS[@]:1}")
     fi
+
     # Show progress every 5 Service IDs (only in non-debug mode)
     if [ "$DEBUG" = false ] && [ $((SERVICE_INDEX % 5)) -eq 0 ]; then
         echo -ne "\rProcessed: $SERVICE_INDEX/$TOTAL_SERVICE_IDS Service IDs..."
